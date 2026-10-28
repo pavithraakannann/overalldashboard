@@ -19,7 +19,7 @@ function initializeTable() {
         'DHARMAPURI', 'DINDIGUL', 'ERODE', 'KALLAKURICHI', 'KANCHEEPURAM',
         'KARUR', 'KRISHNAGIRI', 'KANYAKUMARI', 'MADURAI', 'MAYILADUTHURAI',
         'NAGAPATTINAM', 'NAMAKKAL', 'NILGIRIS', 'PERAMBALUR', 'PUDUKKOTTAI',
-        'Ramanathapuram', 'RANIPET', 'SALEM', 'SIVAGANGA', 'TENKASI',
+        'RAMANATHAPURAM', 'RANIPET', 'SALEM', 'SIVAGANGA', 'TENKASI',
         'THANJAVUR', 'THE NILGIRIS', 'THENI', 'THIRUNELVELI', 'THIRUVALLUR',
         'THIRUVARUR', 'THIRUVANNAMALAI', 'TIRUCHIRAPPALLI', 'TIRUPATTUR',
         'TIRUPPUR', 'TUTICORIN', 'VELLORE', 'VILLUPURAM', 'VIRUDHUNAGAR'
@@ -122,15 +122,24 @@ function updateTable() {
 // Process category data
 function processCategory(category, cellClass) {
     const data = uploadedData[category];
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) {
+        console.log(`  - ${category}: No data available`);
+        return;
+    }
 
     const selectedYear = document.getElementById('yearFilter').value;
 
-    console.log(`Processing ${category} with ${data.length} rows`);
-    console.log('Sample row:', data[0]);
+    console.log(`  - ${category}: Processing ${data.length} rows`);
+    console.log('  - Sample row:', data[0]);
+    console.log('  - Available columns:', Object.keys(data[0]));
 
-    data.forEach(row => {
-        const district = normalizeDistrict(row.district || row.District);
+    let matchedCount = 0;
+    let totalSeedlings = 0;
+    const unmatchedDistricts = new Set();
+
+    data.forEach((row, index) => {
+        const rawDistrict = row.district || row.District;
+        const district = normalizeDistrict(rawDistrict);
         const year = row.year || row.Year;
         
         // Try multiple possible column names for seedlings
@@ -156,8 +165,19 @@ function processCategory(category, cellClass) {
         if (cell) {
             const currentValue = parseInt(cell.textContent.replace(/,/g, '')) || 0;
             cell.textContent = (currentValue + seedlings).toLocaleString();
+            matchedCount++;
+            totalSeedlings += seedlings;
+        } else {
+            if (seedlings > 0) {
+                unmatchedDistricts.add(`${rawDistrict} -> ${district}`);
+            }
         }
     });
+
+    console.log(`  - ${category}: Matched ${matchedCount} districts, Total seedlings: ${totalSeedlings.toLocaleString()}`);
+    if (unmatchedDistricts.size > 0) {
+        console.log(`  - Unmatched districts:`, Array.from(unmatchedDistricts).slice(0, 10));
+    }
 }
 
 // Extract specific species from category
