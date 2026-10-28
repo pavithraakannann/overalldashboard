@@ -9,14 +9,16 @@ echo 2. Download all export files
 echo 3. Convert them to JSON format
 echo 4. Update the dashboard data
 echo.
-echo Username: CMD
-echo Password: cf@23
-echo.
 pause
 
 echo.
 echo Installing Python dependencies...
 pip install -r requirements.txt
+
+echo.
+echo Setting environment variables...
+set GREEN_USERNAME=CMD
+set GREEN_PASSWORD=cf@23
 
 echo.
 echo Running auto-download script...
