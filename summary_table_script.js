@@ -21,7 +21,7 @@ function initializeTable() {
         'NAGAPATTINAM', 'NAMAKKAL', 'NILGIRIS', 'PERAMBALUR', 'PUDUKKOTTAI',
         'RAMANATHAPURAM', 'RANIPET', 'SALEM', 'SIVAGANGA', 'TENKASI',
         'THANJAVUR', 'THE NILGIRIS', 'THENI', 'THIRUNELVELI', 'THIRUVALLUR',
-        'THIRUVARUR', 'THIRUVANNAMALAI', 'TIRUCHIRAPPALLI', 'TIRUPATTUR',
+        'THIRUVARUR', 'TIRUVANNAMALAI', 'TIRUCHIRAPPALLI', 'TIRUPATTUR',
         'TIRUPPUR', 'TUTICORIN', 'VELLORE', 'VILLUPURAM', 'VIRUDHUNAGAR'
     ];
 
@@ -230,7 +230,36 @@ function extractSpeciesFromCategory(category, cellClass, speciesList) {
 // Normalize district name
 function normalizeDistrict(district) {
     if (!district) return '';
-    return district.toUpperCase().trim().replace(/\s+/g, ' ');
+    let normalized = district.toUpperCase().trim().replace(/\s+/g, ' ');
+    
+    // Handle common district name variations
+    const variations = {
+        'THE NILGIRIS': 'NILGIRIS',
+        'NILGIRIS': 'NILGIRIS',
+        'THIRUVANNAMALAI': 'TIRUVANNAMALAI',
+        'TIRUVANNAMALAI': 'TIRUVANNAMALAI',
+        'THIRUNELVELI': 'TIRUNELVELI',
+        'TIRUNELVELI': 'TIRUNELVELI',
+        'THIRUVARUR': 'TIRUVARUR',
+        'TIRUVARUR': 'TIRUVARUR',
+        'THIRUVALLUR': 'TIRUVALLUR',
+        'TIRUVALLUR': 'TIRUVALLUR',
+        'TIRUCHIRAPPALLI': 'TIRUCHIRAPPALLI',
+        'TIRUCHIRAPPALLI': 'TIRUCHIRAPPALLI',
+        'TIRUPATTUR': 'TIRUPATTUR',
+        'TIRUPATTUR': 'TIRUPATTUR',
+        'TIRUPPUR': 'TIRUPPUR',
+        'TIRUPPUR': 'TIRUPPUR',
+        'TUTICORIN': 'TUTICORIN',
+        'TUTICORIN': 'TUTICORIN'
+    };
+    
+    // Return the standardized version if it exists in variations
+    if (variations[normalized]) {
+        return variations[normalized];
+    }
+    
+    return normalized;
 }
 
 // Update totals
