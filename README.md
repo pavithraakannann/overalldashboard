@@ -1,193 +1,185 @@
-# Planting Dashboard
+# Tree Plantation Dashboard
 
-A comprehensive demo dashboard for tracking planting statistics including geotag counts, palm species data, agroforest, and sandalwood planting progress.
+A modern dark-themed dashboard for tracking tree plantation data from Green TN Mission.
 
-## Features
+## 🚀 Quick Start
 
-### 1. Geotag Planting Statistics
-- **All Years Count**: Total plantings across all years
-- **Current Year Count**: Plantings for the current financial year (2025-2026)
-- **This Month Count**: Plantings for the current month
-- **Today's Count**: Plantings completed today
+### Local Development
 
-### 2. Geotag Progress Overview
-- **District-wise Progress Bars**: Visual progress indicators for each district
-- **Pie Chart**: Distribution of geotag status (Completed, In Progress, Pending, Rejected)
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-### 3. Palm Species Statistics
-- **Financial Year Selection**: Select from 2021-2022 to 2025-2026
-- **District-wise Progress**: Track different palm species (Coconut, Areca Nut, Oil Palm, Date Palm, Palmyra)
-- **Dynamic Updates**: Data updates automatically when year is changed
+2. **Start Local Server**
+   ```bash
+   # Option 1: Using start_server.bat (Windows)
+   double-click start_server.bat
 
-### 4. Agroforest & Sandalwood Statistics
-- **Year-wise Data**: View data for different financial years
-- **Total Geotags**: Summary of total plantings
-- **Completion Percentage**: Overall completion rate
-- **District-wise Progress**: Detailed progress for each district
+   # Option 2: Using Node.js
+   npx http-server -p 3000
 
-### 5. Date Filter
-- **Custom Date Range**: Filter data by selecting start and end dates
-- **Apply Filter**: Update dashboard with filtered data
+   # Option 3: Using Python
+   python -m http.server 3000
+   ```
 
-## Technologies Used
+3. **Open Dashboard**
+   - Main Dashboard: http://localhost:3000/index.html
+   - Summary Table: http://localhost:3000/summary_table.html
 
-- **HTML5**: Structure and layout
-- **Bootstrap 5.3.2**: Responsive UI framework
-- **Bootstrap Icons**: Icon library
-- **Chart.js 4.4.0**: Data visualization (pie chart)
-- **CSS3**: Custom styling
-- **JavaScript**: Interactive functionality
+## 📊 Data Management
 
-## How to Use
+### Loading Data
 
-1. **Open the Dashboard**: Simply open `index.html` in a web browser
-2. **View Statistics**: The dashboard displays all statistics with demo data
-3. **Filter by Date**: Use the date picker in the navbar to filter data
-4. **Change Years**: Use the dropdown selectors to view data for different financial years
-5. **View Progress**: Progress bars show completion status for each district
+The dashboard loads data from JSON files in the following format:
+- `data_forest.json` - Forest department data
+- `data_other_dept.json` - Other department data
+- `data_agriculture.json` - Agriculture department data
+- `data_plant_atree.json` - Plant a Tree data
+- `data_palm_forest.json` - Palm forest data
+- `data_palm_other_dept.json` - Palm other department data
 
-## File Structure
+### Exporting Data from Website
+
+1. Go to https://www.greentnmission.com/Export
+2. Login with credentials
+3. Export data for each section (Forest, Other Dept, Agriculture, Plant a Tree)
+4. Save CSV files to Downloads folder
+
+### Converting CSV to JSON
+
+```bash
+# Option 1: Using update_data.bat
+double-click update_data.bat
+
+# Option 2: Using Node.js
+node convert_excel_to_json.js
+```
+
+### Auto-Download Script
+
+For automated data download from the website:
+
+```bash
+# Run the auto-download script
+double-click run_auto_download.bat
+```
+
+This will:
+- Login to greentnmission.com
+- Download all export files
+- Convert them to JSON format
+- Update dashboard data
+
+## 🌐 Hosting on Vercel
+
+### Important Note
+
+The dashboard data files are 370+ MB and are NOT committed to git (see `.gitignore`). To host on Vercel, you need to use cloud storage for the data files.
+
+### Option 1: Cloudflare R2 (Recommended - Free)
+
+1. **Create Cloudflare R2 Bucket**
+   - Go to Cloudflare Dashboard
+   - Create R2 bucket
+   - Upload all `data_*.json` files
+
+2. **Enable Public Access**
+   - Configure bucket for public access
+   - Get the public URL
+
+3. **Update Data Loading**
+   - Update `summary_table_script.js` to fetch from R2 URL
+   - Replace: `fetch('data_forest.json')`
+   - With: `fetch('https://your-r2-url.com/data_forest.json')`
+
+4. **Deploy to Vercel**
+   ```bash
+   npm install -g vercel
+   vercel
+   ```
+
+### Option 2: AWS S3
+
+1. **Create S3 Bucket**
+   - Go to AWS Console
+   - Create S3 bucket
+   - Upload `data_*.json` files
+   - Enable public access
+
+2. **Update Data Loading**
+   - Update `summary_table_script.js` to fetch from S3 URL
+
+3. **Deploy to Vercel**
+   ```bash
+   vercel
+   ```
+
+### Option 3: GitHub Pages (Data Limitation)
+
+GitHub Pages can host the dashboard, but:
+- Data files will NOT be included (they're in .gitignore)
+- You'll need to use cloud storage for data
+- Only the UI code will be on GitHub Pages
+
+To deploy to GitHub Pages:
+1. Push to GitHub
+2. Go to repository Settings → Pages
+3. Enable GitHub Pages
+4. Select main branch as source
+
+## 📁 Project Structure
 
 ```
 overalldashboard/
-├── index.html      # Main HTML file
-├── styles.css      # Custom CSS styling
-├── script.js       # JavaScript functionality
-└── README.md       # Documentation
+├── index.html                    # Main dashboard
+├── summary_table.html            # Summary table page
+├── script.js                     # Main dashboard logic
+├── summary_table_script.js       # Summary table logic
+├── styles.css                    # Dark theme styles
+├── convert_excel_to_json.js      # CSV to JSON converter
+├── auto_download.py              # Auto-download script
+├── auto_download_template.py     # Template without credentials
+├── run_auto_download.bat          # Run auto-download
+├── update_data.bat               # Update data script
+├── start_server.bat              # Start local server
+├── vercel.json                   # Vercel configuration
+├── package.json                  # Node dependencies
+├── requirements.txt              # Python dependencies
+├── .gitignore                    # Git ignore rules
+└── data_*.json                   # Data files (not in git)
 ```
 
-## Hosting on GitHub
+## 🔧 Configuration
 
-### Repository: pavithraakannann/overalldashboard
+### Environment Variables
 
-Since Git is not installed on your system, follow these steps to upload via GitHub web interface:
+For auto-download script:
+- `GREEN_USERNAME` - Website username
+- `GREEN_PASSWORD` - Website password
 
-#### Step 1: Create the Repository
-1. Go to https://github.com/new
-2. Repository name: `overalldashboard`
-3. Make it Public (for GitHub Pages)
-4. Do NOT initialize with README (we have our own)
-5. Click "Create repository"
+### District List
 
-#### Step 2: Upload Files
-1. On the repository page, click "uploading an existing file"
-2. Drag and drop these files:
-   - `index.html`
-   - `styles.css`
-   - `script.js`
-   - `README.md`
-3. Wait for files to upload
-4. Scroll to the bottom and click "Commit changes"
-5. In the commit message, type: "Initial commit - Planting Dashboard"
-6. Click "Commit changes"
+The dashboard supports 38 Tamil Nadu districts. Update in `summary_table_script.js` if needed.
 
-#### Step 3: Enable GitHub Pages
-1. Go to repository Settings
-2. Click on "Pages" in the left sidebar
-3. Under "Build and deployment", select "Source" as "Deploy from a branch"
-4. Select "main" branch and "/ (root)" folder
-5. Click "Save"
-6. Wait 1-2 minutes for GitHub to deploy
-7. Your dashboard will be available at: `https://pavithraakannann.github.io/overalldashboard/`
+## 🎨 Features
 
-### Alternative: Using Git Command Line
-If you install Git later, you can use these commands:
+- Modern dark theme with animations
+- District-wise data visualization
+- Financial year filtering
+- Date range filtering
+- Species-based extraction (Silver Oak, Sandle Wood)
+- Auto-download from website
+- Export to Excel
 
-```bash
-git init
-git add .
-git commit -m "Initial commit - Planting Dashboard"
-git branch -M main
-git remote add origin https://github.com/pavithraakannann/overalldashboard.git
-git push -u origin main
-```
+## 📝 License
 
-## Troubleshooting GitHub Pages 404 Error
+This project is for tracking tree plantation data from Green TN Mission.
 
-If you see a "404 Site not found" error, follow these steps:
+## 🤝 Contributing
 
-### 1. Check if Repository Exists
-- Go to: https://github.com/pavithraakannann/overalldashboard
-- If you see "404 Not Found", the repository doesn't exist yet - create it first
-
-### 2. Verify Files are Uploaded
-- Make sure all 4 files are in the repository:
-  - `index.html`
-  - `styles.css`
-  - `script.js`
-  - `README.md`
-- The `index.html` file MUST be in the root of the repository (not in a subfolder)
-
-### 3. Check GitHub Pages Settings
-1. Go to repository Settings → Pages
-2. Verify:
-   - Source is set to "Deploy from a branch"
-   - Branch is "main" (or "master")
-   - Folder is "/ (root)"
-3. If settings look correct, click "Save" again to trigger redeployment
-
-### 4. Wait for Deployment
-- GitHub Pages takes 1-5 minutes to deploy
-- Check the "Pages" section for deployment status
-- Look for green checkmark indicating successful deployment
-
-### 5. Common Issues & Fixes
-
-**Issue: Files in wrong location**
-- Make sure `index.html` is at the root level
-- Don't put files in subfolders like `docs/` or `dist/`
-
-**Issue: Wrong branch name**
-- GitHub sometimes uses "master" instead of "main"
-- Check your actual branch name in the repository
-- Update Pages settings to match
-
-**Issue: Repository is private**
-- GitHub Pages requires public repositories for free accounts
-- Make repository public in Settings
-
-**Issue: Index file missing**
-- GitHub Pages looks for `index.html` (not `Index.html` or `INDEX.html`)
-- Ensure exact lowercase filename
-
-### 6. Check Deployment Logs
-1. Go to repository → Actions tab
-2. Look for "pages" workflow runs
-3. Click on the latest run to see error details
-4. Fix any errors shown in the logs
-
-### 7. Correct URL Format
-Your dashboard URL should be:
-```
-https://pavithraakannann.github.io/overalldashboard/
-```
-NOT:
-```
-https://pavithraakannann.github.io/overalldashboard (without trailing slash)
-```
-
-### Still Having Issues?
-1. Delete the repository and recreate it from scratch
-2. Re-upload files following the steps above
-3. Enable GitHub Pages again
-4. Wait 2-3 minutes and try again
-
-## Customization
-
-To customize the dashboard with real data:
-
-1. Replace the demo data in `script.js` with actual API calls
-2. Update the data structures (palmData, agroforestData, sandalwoodData) with real values
-3. Connect to your backend API for dynamic data fetching
-4. Modify the UI as needed in `index.html`
-
-## Responsive Design
-
-The dashboard is fully responsive and works on:
-- Desktop computers
-- Tablets
-- Mobile devices
-
-## License
-
-This is a demo dashboard for educational purposes.
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
