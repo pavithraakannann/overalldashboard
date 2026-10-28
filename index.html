@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planting Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-tree-fill me-2"></i>Planting Dashboard
+            </span>
+            <a href="summary_table.html" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-table me-2"></i>Summary Table
+            </a>
+        </div>
+    </nav>
+
+    <!-- Floating Particles -->
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 40%; animation-delay: 6s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
+    <div class="particle" style="left: 60%; animation-delay: 10s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 12s;"></div>
+    <div class="particle" style="left: 80%; animation-delay: 14s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 1s;"></div>
+    <div class="particle" style="left: 15%; animation-delay: 3s;"></div>
+    <div class="particle" style="left: 25%; animation-delay: 5s;"></div>
+    <div class="particle" style="left: 35%; animation-delay: 7s;"></div>
+    <div class="particle" style="left: 45%; animation-delay: 9s;"></div>
+    <div class="particle" style="left: 55%; animation-delay: 11s;"></div>
+    <div class="particle" style="left: 65%; animation-delay: 13s;"></div>
+    <div class="particle" style="left: 75%; animation-delay: 15s;"></div>
+    <div class="particle" style="left: 85%; animation-delay: 17s;"></div>
+    <div class="particle" style="left: 95%; animation-delay: 19s;"></div>
+
+    <div class="container-fluid mt-4">
+        <!-- Geotag Planting Counts -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="mb-3"><i class="bi bi-geo-alt-fill me-2"></i>Overall Geotag Statistics</h4>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">All Years</h6>
+                        <h2 class="display-4" id="allYearsCount">0</h2>
+                        <p class="mb-0"><i class="bi bi-calendar3"></i> Total Plantings</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Current Year</h6>
+                        <h2 class="display-4" id="currentYearCount">0</h2>
+                        <p class="mb-0"><i class="bi bi-calendar-check"></i> 2026-2027</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">This Month</h6>
+                        <h2 class="display-4" id="thisMonthCount">0</h2>
+                        <p class="mb-0"><i class="bi bi-calendar-month"></i> October 2026</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card stat-card bg-warning text-dark">
+                    <div class="card-body">
+                        <h6 class="card-title">Today</h6>
+                        <h2 class="display-4" id="todayCount">0</h2>
+                        <p class="mb-0"><i class="bi bi-calendar-day"></i> Today</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Geotag Progress Bar and Pie Chart -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="mb-3"><i class="bi bi-bar-chart-fill me-2"></i>Geotag Progress Overview</h4>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="card">
+                    <div class="card-body filter-section">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar-check me-2"></i>Financial Year:</label>
+                                <select class="form-select" id="geotagYearSelect" onchange="updateGeotagByYear()">
+                                    <option value="all" selected>All Years</option>
+                                    <option value="2026-2027">2026-2027</option>
+                                    <option value="2025-2026">2025-2026</option>
+                                    <option value="2024-2025">2024-2025</option>
+                                    <option value="2023-2024">2023-2024</option>
+                                    <option value="2022-2023">2022-2023</option>
+                                    <option value="2021-2022">2021-2022</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar3 me-2"></i>Date Range:</label>
+                                <div class="row align-items-end">
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="geotagStartDate">
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="geotagEndDate">
+                                    </div>
+                                    <div class="col-2">
+                                        <button class="btn btn-primary btn-sm w-100" onclick="applyGeotagDateFilter()">
+                                            <i class="bi bi-filter"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold"><i class="bi bi-geo-alt me-2"></i>District:</label>
+                                <select class="form-select" id="geotagDistrictSelect" onchange="updateGeotagByDistrict()">
+                                    <option value="all">All Districts</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">District-wise Progress</h5>
+                    </div>
+                    <div class="card-body" id="geotagProgress">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">District-wise Distribution</h5>
+                    </div>
+                    <div class="card-body pie-chart-container">
+                        <canvas id="geotagPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agroforest and Sandalwood -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="mb-3"><i class="bi bi-tree me-2"></i>Agroforest & Sandalwood Statistics</h4>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card mb-3">
+                    <div class="card-body filter-section">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar-check me-2"></i>Financial Year:</label>
+                                <select class="form-select" id="agroYearSelect" onchange="updateAgroData()">
+                                    <option value="all" selected>All Years</option>
+                                    <option value="2026-2027">2026-2027</option>
+                                    <option value="2025-2026">2025-2026</option>
+                                    <option value="2024-2025">2024-2025</option>
+                                    <option value="2023-2024">2023-2024</option>
+                                    <option value="2022-2023">2022-2023</option>
+                                    <option value="2021-2022">2021-2022</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-geo-alt me-2"></i>District:</label>
+                                <select class="form-select" id="agroDistrictSelect" onchange="updateAgroData()">
+                                    <option value="all">All Districts</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar3 me-2"></i>Date Range:</label>
+                                <div class="row align-items-end">
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="agroStartDate">
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="agroEndDate">
+                                    </div>
+                                    <div class="col-2">
+                                        <button class="btn btn-primary btn-sm w-100" onclick="applyAgroDateFilter()">
+                                            <i class="bi bi-filter"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">Agroforest Geotag Count (<span id="selectedAgroYear">All Years</span>)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h3 id="agroTotal">0</h3>
+                                    <p class="mb-0">Total Geotags</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h3 id="agroPercentage">100%</h3>
+                                    <p class="mb-0">Completion</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="agroforestProgress">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card mb-3">
+                    <div class="card-body filter-section">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar-check me-2"></i>Financial Year:</label>
+                                <select class="form-select" id="sandalYearSelect" onchange="updateSandalData()">
+                                    <option value="all" selected>All Years</option>
+                                    <option value="2026-2027">2026-2027</option>
+                                    <option value="2025-2026">2025-2026</option>
+                                    <option value="2024-2025">2024-2025</option>
+                                    <option value="2023-2024">2023-2024</option>
+                                    <option value="2022-2023">2022-2023</option>
+                                    <option value="2021-2022">2021-2022</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-geo-alt me-2"></i>District:</label>
+                                <select class="form-select" id="sandalDistrictSelect" onchange="updateSandalData()">
+                                    <option value="all">All Districts</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar3 me-2"></i>Date Range:</label>
+                                <div class="row align-items-end">
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="sandalStartDate">
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="sandalEndDate">
+                                    </div>
+                                    <div class="col-2">
+                                        <button class="btn btn-primary btn-sm w-100" onclick="applySandalDateFilter()">
+                                            <i class="bi bi-filter"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Sandalwood Geotag Count (<span id="selectedSandalYear">All Years</span>)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h3 id="sandalTotal">0</h3>
+                                    <p class="mb-0">Total Geotags</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h3 id="sandalPercentage">100%</h3>
+                                    <p class="mb-0">Completion</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sandalwoodProgress">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Palm Species Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="mb-3"><i class="bi bi-tree-fill me-2"></i>Palm Species Statistics</h4>
+            </div>
+            
+            <!-- Department Palm -->
+            <div class="col-lg-6 mb-4">
+                <div class="card mb-3">
+                    <div class="card-body filter-section">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar-check me-2"></i>Financial Year:</label>
+                                <select class="form-select" id="deptPalmYearSelect" onchange="updateDeptPalmData()">
+                                    <option value="all" selected>All Years</option>
+                                    <option value="2026-2027">2026-2027</option>
+                                    <option value="2025-2026">2025-2026</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-geo-alt me-2"></i>District:</label>
+                                <select class="form-select" id="deptPalmDistrictSelect" onchange="updateDeptPalmData()">
+                                    <option value="all">All Districts</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar3 me-2"></i>Date Range:</label>
+                                <div class="row align-items-end">
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="deptPalmStartDate">
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="deptPalmEndDate">
+                                    </div>
+                                    <div class="col-2">
+                                        <button class="btn btn-primary btn-sm w-100" onclick="applyDeptPalmDateFilter()">
+                                            <i class="bi bi-filter"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Department Palm (<span id="selectedDeptPalmYear">All Years</span>)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h3 id="deptPalmTotal">0</h3>
+                                    <p class="mb-0">Total Geotags</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h3 id="deptPalmPercentage">100%</h3>
+                                    <p class="mb-0">Completion</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="deptPalmProgress">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Palm Tree Plantings -->
+            <div class="col-lg-6 mb-4">
+                <div class="card mb-3">
+                    <div class="card-body filter-section">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar-check me-2"></i>Financial Year:</label>
+                                <select class="form-select" id="palmTreeYearSelect" onchange="updatePalmTreeData()">
+                                    <option value="all" selected>All Years</option>
+                                    <option value="2026-2027">2026-2027</option>
+                                    <option value="2025-2026">2025-2026</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label fw-bold"><i class="bi bi-geo-alt me-2"></i>District:</label>
+                                <select class="form-select" id="palmTreeDistrictSelect" onchange="updatePalmTreeData()">
+                                    <option value="all">All Districts</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar3 me-2"></i>Date Range:</label>
+                                <div class="row align-items-end">
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="palmTreeStartDate">
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="date" class="form-control form-control-sm" id="palmTreeEndDate">
+                                    </div>
+                                    <div class="col-2">
+                                        <button class="btn btn-primary btn-sm w-100" onclick="applyPalmTreeDateFilter()">
+                                            <i class="bi bi-filter"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Palm Tree Plantings (<span id="selectedPalmTreeYear">All Years</span>)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h3 id="palmTreeTotal">0</h3>
+                                    <p class="mb-0">Total Geotags</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h3 id="palmTreePercentage">100%</h3>
+                                    <p class="mb-0">Completion</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="palmTreeProgress">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p class="mb-0">Planting Dashboard © 2025</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

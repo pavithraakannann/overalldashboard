@@ -1,0 +1,14 @@
+# Node modules
+node_modules/
+
+# Large data files (regenerate from CSV exports)
+summary_data.json
+
+# Exported CSV files
+*.csv
+*.xlsx
+*.xls
+
+# OS files
+.DS_Store
+Thumbs.db

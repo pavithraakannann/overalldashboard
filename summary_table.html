@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Summary Table</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .table-container {
+            background: rgba(30, 27, 75, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+        
+        .summary-table {
+            font-size: 0.85rem;
+            border-collapse: collapse;
+        }
+        
+        .summary-table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 8px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .summary-table tbody td {
+            padding: 10px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            text-align: center;
+            font-weight: 600;
+            background: rgba(30, 27, 75, 0.3);
+        }
+        
+        .summary-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .total-row {
+            background: linear-gradient(135deg, rgba(17, 153, 142, 0.3) 0%, rgba(56, 239, 125, 0.3) 100%);
+            font-weight: 700;
+            color: #11998e;
+        }
+        
+        .upload-section {
+            background: rgba(30, 27, 75, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .upload-card {
+            background: rgba(48, 43, 99, 0.5);
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .upload-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        
+        .upload-card h6 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-card .file-input {
+            margin-top: 0.5rem;
+        }
+        
+        .upload-card .upload-status {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            color: #10b981;
+        }
+        
+        .filter-section {
+            background: rgba(30, 27, 75, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-table me-2"></i>Comprehensive Summary Table
+            </span>
+            <a href="index.html" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h5 class="mb-3"><i class="bi bi-funnel me-2"></i>Filters</h5>
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label class="form-label fw-bold"><i class="bi bi-calendar-check me-2"></i>Financial Year:</label>
+                    <select class="form-select" id="yearFilter" onchange="applyFilters()">
+                        <option value="all">All Years</option>
+                        <option value="2026-2027">2026-2027</option>
+                        <option value="2025-2026">2025-2026</option>
+                        <option value="2024-2025">2024-2025</option>
+                        <option value="2023-2024">2023-2024</option>
+                        <option value="2022-2023">2022-2023</option>
+                        <option value="2021-2022">2021-2022</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label fw-bold"><i class="bi bi-calendar3 me-2"></i>Date Range:</label>
+                    <div class="row align-items-end">
+                        <div class="col-4">
+                            <input type="date" class="form-control form-control-sm" id="startDate">
+                        </div>
+                        <div class="col-4">
+                            <input type="date" class="form-control form-control-sm" id="endDate">
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-primary btn-sm w-100" onclick="applyDateFilter()">
+                                <i class="bi bi-filter"></i>
+                            </button>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-danger btn-sm w-100" onclick="clearDateFilter()">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold"><i class="bi bi-download me-2"></i>Export:</label>
+                    <button class="btn btn-success w-100" onclick="exportToExcel()">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Export to Excel
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <button class="btn btn-info w-100" onclick="loadDataFromJSON()">
+                        <i class="bi bi-cloud-download me-2"></i>Load Data from JSON
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-container">
+            <h5 class="mb-3"><i class="bi bi-table me-2"></i>District-wise Summary</h5>
+            <table class="table table-striped summary-table" id="summaryTable">
+                <thead>
+                    <tr>
+                        <th rowspan="2">S.No</th>
+                        <th rowspan="2">District</th>
+                        <th colspan="4" class="category-header">Geotag</th>
+                        <th colspan="2" class="category-header">Silver Oak</th>
+                        <th colspan="2" class="category-header">Sandle Wood</th>
+                        <th colspan="2" class="category-header">Palm</th>
+                    </tr>
+                    <tr>
+                        <th>Forest</th>
+                        <th>Other Dept</th>
+                        <th>Agriculture</th>
+                        <th>Plant aTree</th>
+                        <th>Forest</th>
+                        <th>Other Dept</th>
+                        <th>Forest</th>
+                        <th>Other Dept</th>
+                        <th>Forest</th>
+                        <th>Other Dept</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated here -->
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2">Total</td>
+                        <td id="totalGeotagForest">0</td>
+                        <td id="totalGeotagOtherDept">0</td>
+                        <td id="totalGeotagAgriculture">0</td>
+                        <td id="totalGeotagPlantATree">0</td>
+                        <td id="totalSilverOakForest">0</td>
+                        <td id="totalSilverOakOtherDept">0</td>
+                        <td id="totalSandleWoodForest">0</td>
+                        <td id="totalSandleWoodOtherDept">0</td>
+                        <td id="totalPalmForest">0</td>
+                        <td id="totalPalmOtherDept">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="summary_table_script.js"></script>
+</body>
+</html>
