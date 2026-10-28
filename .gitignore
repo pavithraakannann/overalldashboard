@@ -17,6 +17,10 @@ data_*.json
 process_*.js
 data_processor.js
 
+# Auto-download script (contains credentials)
+auto_download.py
+requirements.txt
+
 # OS files
 .DS_Store
 Thumbs.db
