@@ -466,11 +466,7 @@ async function loadDataFromJSON() {
         });
         
         updateTable();
-        alert('Data loaded successfully from JSON files!\n\nTotal records:\n' +
-              `Forest: ${uploadedData.forest.length.toLocaleString()}\n` +
-              `Other Dept: ${uploadedData.otherDept.length.toLocaleString()}\n` +
-              `Agriculture: ${uploadedData.agriculture.length.toLocaleString()}\n` +
-              `Plant aTree: ${uploadedData.plantATree.length.toLocaleString()}`);
+        console.log('Data loaded successfully!');
     } catch (error) {
         console.error('Error loading JSON data:', error);
         alert('Error loading data: ' + error.message + '\n\nPlease make sure data_*.json files are in the same folder as summary_table.html');
