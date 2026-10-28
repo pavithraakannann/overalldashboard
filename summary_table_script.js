@@ -105,13 +105,29 @@ function processCategory(category, cellClass) {
 
     const selectedYear = document.getElementById('yearFilter').value;
 
+    console.log(`Processing ${category} with ${data.length} rows`);
+    console.log('Sample row:', data[0]);
+
     data.forEach(row => {
         const district = normalizeDistrict(row.district || row.District);
         const year = row.year || row.Year;
-        const seedlings = parseInt(row.seedlings || row.seedling || row.seedlingscount || 
-                             row.count || row.quantity || row.plantingcount || 
-                             row.number || row.numbers || row.plants || 
-                             row.total || row.amount || row['number of seedlings'] || 0);
+        
+        // Try multiple possible column names for seedlings
+        let seedlings = 0;
+        if (row.seedlings !== undefined) seedlings = parseInt(row.seedlings);
+        else if (row.seedling !== undefined) seedlings = parseInt(row.seedling);
+        else if (row.seedlingscount !== undefined) seedlings = parseInt(row.seedlingscount);
+        else if (row['number of seedlings'] !== undefined) seedlings = parseInt(row['number of seedlings']);
+        else if (row.count !== undefined) seedlings = parseInt(row.count);
+        else if (row.quantity !== undefined) seedlings = parseInt(row.quantity);
+        else if (row.plantingcount !== undefined) seedlings = parseInt(row.plantingcount);
+        else if (row.number !== undefined) seedlings = parseInt(row.number);
+        else if (row.numbers !== undefined) seedlings = parseInt(row.numbers);
+        else if (row.plants !== undefined) seedlings = parseInt(row.plants);
+        else if (row.total !== undefined) seedlings = parseInt(row.total);
+        else if (row.amount !== undefined) seedlings = parseInt(row.amount);
+
+        if (isNaN(seedlings)) seedlings = 0;
 
         if (selectedYear !== 'all' && year !== selectedYear) return;
 
@@ -134,10 +150,23 @@ function extractSpeciesFromCategory(category, cellClass, speciesList) {
         const district = normalizeDistrict(row.district || row.District);
         const year = row.year || row.Year;
         const species = (row.species || row.Species || '').toString().toLowerCase().trim();
-        const seedlings = parseInt(row.seedlings || row.seedling || row.seedlingscount || 
-                             row.count || row.quantity || row.plantingcount || 
-                             row.number || row.numbers || row.plants || 
-                             row.total || row.amount || row['number of seedlings'] || 0);
+        
+        // Try multiple possible column names for seedlings
+        let seedlings = 0;
+        if (row.seedlings !== undefined) seedlings = parseInt(row.seedlings);
+        else if (row.seedling !== undefined) seedlings = parseInt(row.seedling);
+        else if (row.seedlingscount !== undefined) seedlings = parseInt(row.seedlingscount);
+        else if (row['number of seedlings'] !== undefined) seedlings = parseInt(row['number of seedlings']);
+        else if (row.count !== undefined) seedlings = parseInt(row.count);
+        else if (row.quantity !== undefined) seedlings = parseInt(row.quantity);
+        else if (row.plantingcount !== undefined) seedlings = parseInt(row.plantingcount);
+        else if (row.number !== undefined) seedlings = parseInt(row.number);
+        else if (row.numbers !== undefined) seedlings = parseInt(row.numbers);
+        else if (row.plants !== undefined) seedlings = parseInt(row.plants);
+        else if (row.total !== undefined) seedlings = parseInt(row.total);
+        else if (row.amount !== undefined) seedlings = parseInt(row.amount);
+
+        if (isNaN(seedlings)) seedlings = 0;
 
         if (selectedYear !== 'all' && year !== selectedYear) return;
 
@@ -282,10 +311,23 @@ function processCategoryWithDateFilter(category, cellClass, yearsToInclude) {
     data.forEach(row => {
         const district = normalizeDistrict(row.district || row.District);
         const year = row.year || row.Year;
-        const seedlings = parseInt(row.seedlings || row.seedling || row.seedlingscount || 
-                             row.count || row.quantity || row.plantingcount || 
-                             row.number || row.numbers || row.plants || 
-                             row.total || row.amount || row['number of seedlings'] || 0);
+        
+        // Try multiple possible column names for seedlings
+        let seedlings = 0;
+        if (row.seedlings !== undefined) seedlings = parseInt(row.seedlings);
+        else if (row.seedling !== undefined) seedlings = parseInt(row.seedling);
+        else if (row.seedlingscount !== undefined) seedlings = parseInt(row.seedlingscount);
+        else if (row['number of seedlings'] !== undefined) seedlings = parseInt(row['number of seedlings']);
+        else if (row.count !== undefined) seedlings = parseInt(row.count);
+        else if (row.quantity !== undefined) seedlings = parseInt(row.quantity);
+        else if (row.plantingcount !== undefined) seedlings = parseInt(row.plantingcount);
+        else if (row.number !== undefined) seedlings = parseInt(row.number);
+        else if (row.numbers !== undefined) seedlings = parseInt(row.numbers);
+        else if (row.plants !== undefined) seedlings = parseInt(row.plants);
+        else if (row.total !== undefined) seedlings = parseInt(row.total);
+        else if (row.amount !== undefined) seedlings = parseInt(row.amount);
+
+        if (isNaN(seedlings)) seedlings = 0;
 
         if (!yearsToInclude.includes(year)) return;
 
@@ -306,10 +348,23 @@ function extractSpeciesFromCategoryWithDateFilter(category, cellClass, speciesLi
         const district = normalizeDistrict(row.district || row.District);
         const year = row.year || row.Year;
         const species = (row.species || row.Species || '').toString().toLowerCase().trim();
-        const seedlings = parseInt(row.seedlings || row.seedling || row.seedlingscount || 
-                             row.count || row.quantity || row.plantingcount || 
-                             row.number || row.numbers || row.plants || 
-                             row.total || row.amount || row['number of seedlings'] || 0);
+        
+        // Try multiple possible column names for seedlings
+        let seedlings = 0;
+        if (row.seedlings !== undefined) seedlings = parseInt(row.seedlings);
+        else if (row.seedling !== undefined) seedlings = parseInt(row.seedling);
+        else if (row.seedlingscount !== undefined) seedlings = parseInt(row.seedlingscount);
+        else if (row['number of seedlings'] !== undefined) seedlings = parseInt(row['number of seedlings']);
+        else if (row.count !== undefined) seedlings = parseInt(row.count);
+        else if (row.quantity !== undefined) seedlings = parseInt(row.quantity);
+        else if (row.plantingcount !== undefined) seedlings = parseInt(row.plantingcount);
+        else if (row.number !== undefined) seedlings = parseInt(row.number);
+        else if (row.numbers !== undefined) seedlings = parseInt(row.numbers);
+        else if (row.plants !== undefined) seedlings = parseInt(row.plants);
+        else if (row.total !== undefined) seedlings = parseInt(row.total);
+        else if (row.amount !== undefined) seedlings = parseInt(row.amount);
+
+        if (isNaN(seedlings)) seedlings = 0;
 
         if (!yearsToInclude.includes(year)) return;
 
