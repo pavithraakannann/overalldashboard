@@ -2,8 +2,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     setDefaultDates();
     initializeTable();
-    // Try to load data from JSON file automatically
-    loadDataFromJSON();
+    // Don't auto-load data - wait for user to click button to avoid large file loading issues
+    console.log('Dashboard initialized. Click "Load Data from JSON" to load the exported data.');
 });
 
 // Set default dates (blank initially)
@@ -368,51 +368,56 @@ function exportToExcel() {
 }
 
 // Load data from JSON file
-function loadDataFromJSON() {
-    fetch('summary_data.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Data file not found');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Normalize data (convert column names to lowercase)
-            const normalizeData = (dataArray) => {
-                return dataArray.map(row => {
-                    const normalizedRow = {};
-                    Object.keys(row).forEach(key => {
-                        const normalizedKey = key.toLowerCase().trim();
-                        normalizedRow[normalizedKey] = row[key];
-                    });
-                    return normalizedRow;
+async function loadDataFromJSON() {
+    console.log('Attempting to load data from JSON files...');
+    
+    try {
+        // Load each data file separately
+        const [forestData, otherDeptData, agricultureData, plantATreeData, palmForestData, palmOtherDeptData] = await Promise.all([
+            fetch('data_forest.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_other_dept.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_agriculture.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_plant_atree.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_palm_forest.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_palm_other_dept.json').then(r => r.ok ? r.json() : Promise.resolve([]))
+        ]);
+
+        // Normalize data (convert column names to lowercase)
+        const normalizeData = (dataArray) => {
+            if (!dataArray || !Array.isArray(dataArray)) return [];
+            return dataArray.map(row => {
+                const normalizedRow = {};
+                Object.keys(row).forEach(key => {
+                    const normalizedKey = key.toLowerCase().trim();
+                    normalizedRow[normalizedKey] = row[key];
                 });
-            };
-
-            // Load and normalize data into uploadedData structure
-            if (data.forest) uploadedData.forest = normalizeData(data.forest);
-            if (data.otherDept) uploadedData.otherDept = normalizeData(data.otherDept);
-            if (data.agriculture) uploadedData.agriculture = normalizeData(data.agriculture);
-            if (data.plantATree) uploadedData.plantATree = normalizeData(data.plantATree);
-            if (data.palmForest) uploadedData.palmForest = normalizeData(data.palmForest);
-            if (data.palmOtherDept) uploadedData.palmOtherDept = normalizeData(data.palmOtherDept);
-
-            console.log('Data loaded from JSON:', {
-                forest: uploadedData.forest.length,
-                otherDept: uploadedData.otherDept.length,
-                agriculture: uploadedData.agriculture.length,
-                plantATree: uploadedData.plantATree.length
+                return normalizedRow;
             });
-            
-            updateTable();
-            alert('Data loaded successfully from JSON file!\n\nTotal records:\n' +
-                  `Forest: ${uploadedData.forest.length.toLocaleString()}\n` +
-                  `Other Dept: ${uploadedData.otherDept.length.toLocaleString()}\n` +
-                  `Agriculture: ${uploadedData.agriculture.length.toLocaleString()}\n` +
-                  `Plant aTree: ${uploadedData.plantATree.length.toLocaleString()}`);
-        })
-        .catch(error => {
-            console.log('No JSON data file found or error loading:', error.message);
-            // Don't show alert for expected case when file doesn't exist
+        };
+
+        // Load and normalize data into uploadedData structure
+        uploadedData.forest = normalizeData(forestData);
+        uploadedData.otherDept = normalizeData(otherDeptData);
+        uploadedData.agriculture = normalizeData(agricultureData);
+        uploadedData.plantATree = normalizeData(plantATreeData);
+        uploadedData.palmForest = normalizeData(palmForestData);
+        uploadedData.palmOtherDept = normalizeData(palmOtherDeptData);
+
+        console.log('Data loaded from JSON:', {
+            forest: uploadedData.forest.length,
+            otherDept: uploadedData.otherDept.length,
+            agriculture: uploadedData.agriculture.length,
+            plantATree: uploadedData.plantATree.length
         });
+        
+        updateTable();
+        alert('Data loaded successfully from JSON files!\n\nTotal records:\n' +
+              `Forest: ${uploadedData.forest.length.toLocaleString()}\n` +
+              `Other Dept: ${uploadedData.otherDept.length.toLocaleString()}\n` +
+              `Agriculture: ${uploadedData.agriculture.length.toLocaleString()}\n` +
+              `Plant aTree: ${uploadedData.plantATree.length.toLocaleString()}`);
+    } catch (error) {
+        console.error('Error loading JSON data:', error);
+        alert('Error loading data: ' + error.message + '\n\nPlease make sure data_*.json files are in the same folder as summary_table.html');
+    }
 }

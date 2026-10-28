@@ -77,15 +77,26 @@ if (summaryData.agriculture.length > 0) {
     console.log(`   Sample row:`, Object.keys(summaryData.agriculture[0]));
 }
 
-// Save to JSON
-const outputPath = path.join(__dirname, 'summary_data.json');
-fs.writeFileSync(outputPath, JSON.stringify(summaryData, null, 2));
+// Save to JSON (split into smaller files for better browser loading)
+const forestPath = path.join(__dirname, 'data_forest.json');
+const otherDeptPath = path.join(__dirname, 'data_other_dept.json');
+const agriculturePath = path.join(__dirname, 'data_agriculture.json');
+const plantATreePath = path.join(__dirname, 'data_plant_atree.json');
+const palmForestPath = path.join(__dirname, 'data_palm_forest.json');
+const palmOtherDeptPath = path.join(__dirname, 'data_palm_other_dept.json');
 
-console.log('\n✓ Data converted and saved to summary_data.json');
+fs.writeFileSync(forestPath, JSON.stringify(summaryData.forest, null, 2));
+fs.writeFileSync(otherDeptPath, JSON.stringify(summaryData.otherDept, null, 2));
+fs.writeFileSync(agriculturePath, JSON.stringify(summaryData.agriculture, null, 2));
+fs.writeFileSync(plantATreePath, JSON.stringify(summaryData.plantATree, null, 2));
+fs.writeFileSync(palmForestPath, JSON.stringify(summaryData.palmForest, null, 2));
+fs.writeFileSync(palmOtherDeptPath, JSON.stringify(summaryData.palmOtherDept, null, 2));
+
+console.log('\n✓ Data converted and saved to separate JSON files');
 console.log('\nSummary:');
-console.log(`Forest (incl. Coastal): ${summaryData.forest.length} rows`);
-console.log(`Other Dept: ${summaryData.otherDept.length} rows`);
-console.log(`Agriculture: ${summaryData.agriculture.length} rows`);
-console.log(`Plant aTree: ${summaryData.plantATree.length} rows`);
-console.log(`Palm Forest: ${summaryData.palmForest.length} rows`);
-console.log(`Palm Other Dept: ${summaryData.palmOtherDept.length} rows`);
+console.log(`Forest (incl. Coastal): ${summaryData.forest.length} rows → data_forest.json`);
+console.log(`Other Dept: ${summaryData.otherDept.length} rows → data_other_dept.json`);
+console.log(`Agriculture: ${summaryData.agriculture.length} rows → data_agriculture.json`);
+console.log(`Plant aTree: ${summaryData.plantATree.length} rows → data_plant_atree.json`);
+console.log(`Palm Forest: ${summaryData.palmForest.length} rows → data_palm_forest.json`);
+console.log(`Palm Other Dept: ${summaryData.palmOtherDept.length} rows → data_palm_other_dept.json`);
