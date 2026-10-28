@@ -71,31 +71,52 @@ const sandleWoodSpecies = [
 
 // Update table with uploaded data
 function updateTable() {
+    console.log('=== Starting table update ===');
+    console.log('Uploaded data:', {
+        forest: uploadedData.forest.length,
+        otherDept: uploadedData.otherDept.length,
+        agriculture: uploadedData.agriculture.length,
+        plantATree: uploadedData.plantATree.length
+    });
+    
     // Reset all cells to 0
     document.querySelectorAll('#tableBody td[data-district]').forEach(cell => {
         cell.textContent = '0';
     });
 
     // Process geotag categories
+    console.log('Processing forest...');
     processCategory('forest', 'geotag-forest');
+    
+    console.log('Processing other dept...');
     processCategory('otherDept', 'geotag-other-dept');
+    
+    console.log('Processing agriculture...');
     processCategory('agriculture', 'geotag-agriculture');
+    
+    console.log('Processing plant a tree...');
     processCategory('plantATree', 'geotag-plant-atree');
 
     // Extract Silver Oak from forest and otherDept based on species
+    console.log('Extracting Silver Oak...');
     extractSpeciesFromCategory('forest', 'silver-oak-forest', silverOakSpecies);
     extractSpeciesFromCategory('otherDept', 'silver-oak-other-dept', silverOakSpecies);
 
     // Extract Sandle Wood from forest and otherDept based on species
+    console.log('Extracting Sandle Wood...');
     extractSpeciesFromCategory('forest', 'sandle-wood-forest', sandleWoodSpecies);
     extractSpeciesFromCategory('otherDept', 'sandle-wood-other-dept', sandleWoodSpecies);
 
     // Process palm categories
+    console.log('Processing palm...');
     processCategory('palmForest', 'palm-forest');
     processCategory('palmOtherDept', 'palm-other-dept');
 
     // Update totals
+    console.log('Updating totals...');
     updateTotals();
+    
+    console.log('=== Table update complete ===');
 }
 
 // Process category data
