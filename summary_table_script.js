@@ -232,20 +232,20 @@ function normalizeDistrict(district) {
     if (!district) return '';
     let normalized = district.toUpperCase().trim().replace(/\s+/g, ' ');
     
-    // Handle common district name variations
+    // Handle common district name variations - map to table district names
     const variations = {
-        'THE NILGIRIS': 'NILGIRIS',
-        'NILGIRIS': 'NILGIRIS',
-        'THIRUVANNAMALAI': 'TIRUVANNAMALAI',
+        'NILGIRIS': 'THE NILGIRIS',
+        'THE NILGIRIS': 'THE NILGIRIS',
         'TIRUVANNAMALAI': 'TIRUVANNAMALAI',
-        'THIRUNELVELI': 'TIRUNELVELI',
-        'TIRUNELVELI': 'TIRUNELVELI',
-        'THIRUVARUR': 'TIRUVARUR',
-        'TIRUVARUR': 'TIRUVARUR',
-        'THIRUVALLUR': 'TIRUVALLUR',
-        'TIRUVALLUR': 'TIRUVALLUR',
+        'THIRUVANNAMALAI': 'TIRUVANNAMALAI',
+        'TIRUNELVELI': 'THIRUNELVELI',
+        'THIRUNELVELI': 'THIRUNELVELI',
+        'TIRUVARUR': 'THIRUVARUR',
+        'THIRUVARUR': 'THIRUVARUR',
+        'TIRUVALLUR': 'THIRUVALLUR',
+        'THIRUVALLUR': 'THIRUVALLUR',
         'TIRUCHIRAPPALLI': 'TIRUCHIRAPPALLI',
-        'TIRUCHIRAPPALLI': 'TIRUCHIRAPPALLI',
+        'THIRUCHIRAPPALLI': 'TIRUCHIRAPPALLI',
         'TIRUPATTUR': 'TIRUPATTUR',
         'TIRUPATTUR': 'TIRUPATTUR',
         'TIRUPPUR': 'TIRUPPUR',
