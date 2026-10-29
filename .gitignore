@@ -19,8 +19,12 @@ data_processor.js
 
 # Auto-download script (contains credentials)
 auto_download.py
-auto_download_template.py
 requirements.txt
+
+# R2 upload script (contains credentials)
+r2_upload.py
+r2_config.js
+upload_to_r2.bat
 
 # OS files
 .DS_Store

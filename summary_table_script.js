@@ -502,14 +502,19 @@ async function loadDataFromJSON() {
     console.log('Attempting to load data from JSON files...');
     
     try {
+        // Try to load from R2 first, fallback to local files
+        const useR2 = typeof R2_CONFIG !== 'undefined' && R2_CONFIG.accountId !== 'YOUR_ACCOUNT_ID';
+        
+        const baseUrl = useR2 ? R2_CONFIG.publicUrl : '';
+        
         // Load each data file separately
         const [forestData, otherDeptData, agricultureData, plantATreeData, palmForestData, palmOtherDeptData] = await Promise.all([
-            fetch('data_forest.json').then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch('data_other_dept.json').then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch('data_agriculture.json').then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch('data_plant_atree.json').then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch('data_palm_forest.json').then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch('data_palm_other_dept.json').then(r => r.ok ? r.json() : Promise.resolve([]))
+            fetch(`${baseUrl}/data_forest.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch(`${baseUrl}/data_other_dept.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch(`${baseUrl}/data_agriculture.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch(`${baseUrl}/data_plant_atree.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch(`${baseUrl}/data_palm_forest.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch(`${baseUrl}/data_palm_other_dept.json`).then(r => r.ok ? r.json() : Promise.resolve([]))
         ]);
 
         // Normalize data (convert column names to lowercase)
