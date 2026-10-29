@@ -2,8 +2,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     setDefaultDates();
     initializeTable();
-    // Don't auto-load data - wait for user to click button to avoid large file loading issues
-    console.log('Dashboard initialized. Click "Load Data from JSON" to load the exported data.');
+    // Auto-load data from JSON file
+    loadDataFromJSON();
 });
 
 // Set default dates (blank initially)

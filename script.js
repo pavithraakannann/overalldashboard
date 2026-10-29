@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setIndividualDefaultDates();
     addStaggeredAnimations();
     loadRealData();
-    console.log('Dashboard initialized. Click "Load Data" to load from JSON files.');
+    // Auto-load data from JSON files
+    loadDataFromJSON();
 });
 
 // Load data from JSON files
