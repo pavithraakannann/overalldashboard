@@ -19,8 +19,12 @@ data_processor.js
 
 # Auto-download script (contains credentials)
 auto_download.py
+auto_download_template.py
 requirements.txt
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Old documentation
+GITHUB_PAGES_CHECKLIST.md
