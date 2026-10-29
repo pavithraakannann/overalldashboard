@@ -23,6 +23,8 @@ requirements.txt
 
 # R2 config with credentials (keep template, ignore actual)
 r2_config.js
+upload_to_r2.py
+upload_to_r2.bat
 
 # OS files
 .DS_Store

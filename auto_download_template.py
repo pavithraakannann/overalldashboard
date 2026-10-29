@@ -20,6 +20,12 @@ BASE_URL = "https://www.greentnmission.com"
 USERNAME = os.environ.get('GREEN_USERNAME', 'CMD')
 PASSWORD = os.environ.get('GREEN_PASSWORD', 'cf@23')
 
+# R2 Configuration
+R2_ACCESS_KEY_ID = 'c90c2b382db869093bb3832e88b27396'
+R2_SECRET_ACCESS_KEY = '617bec535ad9b4cde6ee4d218976a0cf06f2b5a525183ec71f2174620030237c'
+R2_BUCKET_NAME = 'planting-dashboard-data'
+R2_ACCOUNT_ID = '6df6aab95aa63f4301c1f9187951b0f6'
+
 def setup_driver():
     """Setup Chrome WebDriver with download preferences"""
     chrome_options = Options()
@@ -226,7 +232,7 @@ def upload_to_r2():
             
             try:
                 s3.upload_file(
-                    BucketName=R2_BUCKET_NAME,
+                    Bucket=R2_BUCKET_NAME,
                     Key=filename,
                     Filename=filepath
                 )
