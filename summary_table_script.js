@@ -18,9 +18,9 @@ function initializeTable() {
         'ARIYALUR', 'CHENGALPATTU', 'CHENNAI', 'COIMBATORE', 'CUDDALORE',
         'DHARMAPURI', 'DINDIGUL', 'ERODE', 'KALLAKURICHI', 'KANCHEEPURAM',
         'KARUR', 'KRISHNAGIRI', 'KANYAKUMARI', 'MADURAI', 'MAYILADUTHURAI',
-        'NAGAPATTINAM', 'NAMAKKAL', 'NILGIRIS', 'PERAMBALUR', 'PUDUKKOTTAI',
+        'NAGAPATTINAM', 'NAMAKKAL', 'THE NILGIRIS', 'PERAMBALUR', 'PUDUKKOTTAI',
         'RAMANATHAPURAM', 'RANIPET', 'SALEM', 'SIVAGANGA', 'TENKASI',
-        'THANJAVUR', 'THE NILGIRIS', 'THENI', 'THIRUNELVELI', 'THIRUVALLUR',
+        'THANJAVUR', 'THENI', 'THIRUNELVELI', 'THIRUVALLUR',
         'THIRUVARUR', 'TIRUVANNAMALAI', 'TIRUCHIRAPPALLI', 'TIRUPATTUR',
         'TIRUPPUR', 'TUTICORIN', 'VELLORE', 'VILLUPURAM', 'VIRUDHUNAGAR'
     ];
@@ -141,6 +141,11 @@ function processCategory(category, cellClass) {
         const rawDistrict = row.district || row.District;
         const district = normalizeDistrict(rawDistrict);
         const year = row.year || row.Year;
+        
+        // Log first few districts for debugging
+        if (index < 5) {
+            console.log(`    Row ${index}: "${rawDistrict}" -> "${district}"`);
+        }
         
         // Try multiple possible column names for seedlings
         let seedlings = 0;
