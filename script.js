@@ -3,7 +3,161 @@ document.addEventListener('DOMContentLoaded', function() {
     setIndividualDefaultDates();
     addStaggeredAnimations();
     loadRealData();
+    console.log('Dashboard initialized. Click "Load Data" to load from JSON files.');
 });
+
+// Load data from JSON files
+async function loadDataFromJSON() {
+    console.log('Loading data from JSON files...');
+    
+    try {
+        // Load each data file separately
+        const [forestData, otherDeptData, agricultureData, plantATreeData, palmForestData, palmOtherDeptData] = await Promise.all([
+            fetch('data_forest.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_other_dept.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_agriculture.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_plant_atree.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_palm_forest.json').then(r => r.ok ? r.json() : Promise.resolve([])),
+            fetch('data_palm_other_dept.json').then(r => r.ok ? r.json() : Promise.resolve([]))
+        ]);
+
+        // Normalize data (convert column names to lowercase)
+        const normalizeData = (dataArray) => {
+            if (!dataArray || !Array.isArray(dataArray)) return [];
+            return dataArray.map(row => {
+                const normalizedRow = {};
+                Object.keys(row).forEach(key => {
+                    const normalizedKey = key.toLowerCase().trim();
+                    normalizedRow[normalizedKey] = row[key];
+                });
+                return normalizedRow;
+            });
+        };
+
+        const forest = normalizeData(forestData);
+        const otherDept = normalizeData(otherDeptData);
+        const agriculture = normalizeData(agricultureData);
+        const plantATree = normalizeData(plantATreeData);
+        const palmForest = normalizeData(palmForestData);
+        const palmOtherDept = normalizeData(palmOtherDeptData);
+
+        console.log('Data loaded:', {
+            forest: forest.length,
+            otherDept: otherDept.length,
+            agriculture: agriculture.length,
+            plantATree: plantATree.length
+        });
+
+        // Convert loaded data to the format expected by the dashboard
+        convertLoadedDataToDashboardFormat(forest, otherDept, agriculture, plantATree, palmForest, palmOtherDept);
+        
+        console.log('Data loaded successfully!');
+    } catch (error) {
+        console.error('Error loading JSON data:', error);
+        alert('Error loading data: ' + error.message + '\n\nPlease make sure data_*.json files are in the same folder.');
+    }
+}
+
+// Convert loaded JSON data to dashboard format
+function convertLoadedDataToDashboardFormat(forest, otherDept, agriculture, plantATree, palmForest, palmOtherDept) {
+    // Process all data and build the district-wise structure
+    const districtData = {};
+    
+    // Process forest data
+    forest.forEach(row => {
+        const district = normalizeDistrictName(row.district);
+        const year = row.year;
+        const seedlings = parseInt(row.seedlings || row['number of seedlings'] || 0) || 0;
+        
+        if (!districtData[district]) {
+            districtData[district] = { total: 0, byYear: {} };
+        }
+        districtData[district].total += seedlings;
+        if (year) {
+            districtData[district].byYear[year] = (districtData[district].byYear[year] || 0) + seedlings;
+        }
+    });
+    
+    // Process other department data
+    otherDept.forEach(row => {
+        const district = normalizeDistrictName(row.district);
+        const year = row.year;
+        const seedlings = parseInt(row.seedlings || 0) || 0;
+        
+        if (!districtData[district]) {
+            districtData[district] = { total: 0, byYear: {} };
+        }
+        districtData[district].total += seedlings;
+        if (year) {
+            districtData[district].byYear[year] = (districtData[district].byYear[year] || 0) + seedlings;
+        }
+    });
+    
+    // Process agriculture data
+    agriculture.forEach(row => {
+        const district = normalizeDistrictName(row.district);
+        const year = row.year;
+        const seedlings = parseInt(row['number of seedlings'] || 0) || 0;
+        
+        if (!districtData[district]) {
+            districtData[district] = { total: 0, byYear: {} };
+        }
+        districtData[district].total += seedlings;
+        if (year) {
+            districtData[district].byYear[year] = (districtData[district].byYear[year] || 0) + seedlings;
+        }
+    });
+    
+    // Process plant a tree data
+    plantATree.forEach(row => {
+        const district = normalizeDistrictName(row.district);
+        const seedlings = parseInt(row['number of seedlings'] || 0) || 0;
+        
+        if (!districtData[district]) {
+            districtData[district] = { total: 0, byYear: {} };
+        }
+        districtData[district].total += seedlings;
+    });
+    
+    // Replace realData with loaded data
+    realData.overallGeotag = districtData;
+    
+    // Refresh dashboard components
+    loadRealData();
+}
+
+// Normalize district name for dashboard
+function normalizeDistrictName(district) {
+    if (!district) return '';
+    let normalized = district.toUpperCase().trim().replace(/\s+/g, ' ');
+    
+    const variations = {
+        'NILGIRIS': 'THE NILGIRIS',
+        'THE NILGIRIS': 'THE NILGIRIS',
+        'TIRUVANNAMALAI': 'TIRUVANNAMALAI',
+        'THIRUVANNAMALAI': 'TIRUVANNAMALAI',
+        'TIRUNELVELI': 'THIRUNELVELI',
+        'THIRUNELVELI': 'THIRUNELVELI',
+        'TIRUVARUR': 'THIRUVARUR',
+        'TIRUVARUR': 'THIRUVARUR',
+        'TIRUVALLUR': 'THIRUVALLUR',
+        'TIRUVALLUR': 'THIRUVALLUR',
+        'TIRUCHIRAPPALLI': 'TIRUCHIRAPPALLI',
+        'THIRUCHIRAPPALLI': 'TIRUCHIRAPPALLI',
+        'TIRUPATTUR': 'TIRUPATTUR',
+        'TIRUPATTUR': 'TIRUPATTUR',
+        'TIRUPPUR': 'TIRUPPUR',
+        'TIRUPPUR': 'TIRUPPUR',
+        'TUTICORIN': 'TUTICORIN',
+        'TUTICORIN': 'TUTICORIN'
+    };
+    
+    if (variations[normalized]) {
+        return variations[normalized];
+    }
+    
+    return normalized;
+}
 
 // Add staggered animations to elements
 function addStaggeredAnimations() {
