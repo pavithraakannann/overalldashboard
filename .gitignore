@@ -17,14 +17,12 @@ data_*.json
 process_*.js
 data_processor.js
 
-# Auto-download script (contains credentials)
+# Auto-download script with credentials (keep template, ignore actual)
 auto_download.py
 requirements.txt
 
-# R2 upload script (contains credentials)
-r2_upload.py
+# R2 config with credentials (keep template, ignore actual)
 r2_config.js
-upload_to_r2.bat
 
 # OS files
 .DS_Store
