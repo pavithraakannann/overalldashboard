@@ -500,21 +500,52 @@ function exportToExcel() {
 // Load data from JSON file
 async function loadDataFromJSON() {
     console.log('Attempting to load data from JSON files...');
-    
+
     try {
         // Try to load from R2 first, fallback to local files
         const useR2 = typeof R2_CONFIG !== 'undefined' && R2_CONFIG.accountId !== 'YOUR_ACCOUNT_ID';
-        
+
         const baseUrl = useR2 ? R2_CONFIG.publicUrl : '';
-        
-        // Load each data file separately
+
+        console.log('Using baseUrl:', baseUrl);
+        console.log('useR2:', useR2);
+
+        // Load each data file separately with fallback to local
+        const fetchWithFallback = async (filename) => {
+            if (useR2) {
+                try {
+                    const r = await fetch(`${baseUrl}/${filename}`);
+                    console.log(`${filename} fetch from R2:`, r.status, r.ok);
+                    if (r.ok) {
+                        return await r.json();
+                    }
+                    console.log(`R2 failed for ${filename}, trying local...`);
+                } catch (e) {
+                    console.log(`R2 error for ${filename}:`, e.message, 'trying local...');
+                }
+            }
+            // Fallback to local file
+            try {
+                const r = await fetch(filename);
+                console.log(`${filename} fetch from local:`, r.status, r.ok);
+                if (r.ok) {
+                    return await r.json();
+                }
+                console.error(`Local fetch failed for ${filename}`);
+                return [];
+            } catch (e) {
+                console.error(`Local fetch error for ${filename}:`, e);
+                return [];
+            }
+        };
+
         const [forestData, otherDeptData, agricultureData, plantATreeData, palmForestData, palmOtherDeptData] = await Promise.all([
-            fetch(`${baseUrl}/data_forest.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch(`${baseUrl}/data_other_dept.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch(`${baseUrl}/data_agriculture.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch(`${baseUrl}/data_plant_atree.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch(`${baseUrl}/data_palm_forest.json`).then(r => r.ok ? r.json() : Promise.resolve([])),
-            fetch(`${baseUrl}/data_palm_other_dept.json`).then(r => r.ok ? r.json() : Promise.resolve([]))
+            fetchWithFallback('data_forest.json'),
+            fetchWithFallback('data_other_dept.json'),
+            fetchWithFallback('data_agriculture.json'),
+            fetchWithFallback('data_plant_atree.json'),
+            fetchWithFallback('data_palm_forest.json'),
+            fetchWithFallback('data_palm_other_dept.json')
         ]);
 
         // Normalize data (convert column names to lowercase)
@@ -549,6 +580,6 @@ async function loadDataFromJSON() {
         console.log('Data loaded successfully!');
     } catch (error) {
         console.error('Error loading JSON data:', error);
-        alert('Error loading data: ' + error.message + '\n\nPlease make sure data_*.json files are in the same folder as summary_table.html');
+        // Don't show alert - just log error
     }
 }
