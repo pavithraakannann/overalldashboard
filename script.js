@@ -7,105 +7,105 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDataFromJSON();
 });
 
-// Load data from JSON files
+// Load data from merged CSV file
 async function loadDataFromJSON() {
-    console.log('Loading data from JSON files...');
+    console.log('Loading data from merged.csv...');
 
     try {
-        // Try to load from R2 first, fallback to local files
+        // Try to load from R2 first, fallback to local file
         const useR2 = typeof R2_CONFIG !== 'undefined' && R2_CONFIG.accountId !== 'YOUR_ACCOUNT_ID';
-
         const baseUrl = useR2 ? R2_CONFIG.publicUrl : '';
 
         console.log('Using baseUrl:', baseUrl);
         console.log('useR2:', useR2);
 
-        // Load each data file separately with fallback to local
-        const fetchWithFallback = async (filename) => {
-            if (useR2) {
-                try {
-                    const r = await fetch(`${baseUrl}/${filename}`);
-                    console.log(`${filename} fetch from R2:`, r.status, r.ok);
-                    if (r.ok) {
-                        return await r.json();
-                    }
-                    console.log(`R2 failed for ${filename}, trying local...`);
-                } catch (e) {
-                    console.log(`R2 error for ${filename}:`, e.message, 'trying local...');
-                }
-            }
-            // Fallback to local file
+        let csvText = '';
+        if (useR2) {
             try {
-                const r = await fetch(filename);
-                console.log(`${filename} fetch from local:`, r.status, r.ok);
+                const r = await fetch(`${baseUrl}/merged.csv`);
+                console.log(`merged.csv fetch from R2:`, r.status, r.ok);
                 if (r.ok) {
-                    return await r.json();
+                    csvText = await r.text();
+                } else {
+                    console.log('R2 failed for merged.csv, trying local...');
                 }
-                console.error(`Local fetch failed for ${filename}`);
-                return [];
             } catch (e) {
-                console.error(`Local fetch error for ${filename}:`, e);
-                return [];
+                console.log(`R2 error for merged.csv:`, e.message, 'trying local...');
             }
-        };
+        }
 
-        const [forestData, otherDeptData, agricultureData, plantATreeData, palmForestData, palmOtherDeptData] = await Promise.all([
-            fetchWithFallback('data_forest.json'),
-            fetchWithFallback('data_other_dept.json'),
-            fetchWithFallback('data_agriculture.json'),
-            fetchWithFallback('data_plant_atree.json'),
-            fetchWithFallback('data_palm_forest.json'),
-            fetchWithFallback('data_palm_other_dept.json')
-        ]);
+        // Fallback to local file
+        if (!csvText) {
+            try {
+                const r = await fetch('merged.csv');
+                console.log(`merged.csv fetch from local:`, r.status, r.ok);
+                if (r.ok) {
+                    csvText = await r.text();
+                } else {
+                    console.error('Local fetch failed for merged.csv');
+                    alert('Error loading merged.csv file. Please make sure it is in the same folder.');
+                    return;
+                }
+            } catch (e) {
+                console.error('Local fetch error for merged.csv:', e);
+                alert('Error loading merged.csv: ' + e.message + '\n\nPlease make sure merged.csv is in the same folder.');
+                return;
+            }
+        }
 
-        // Normalize data (convert column names to lowercase)
-        const normalizeData = (dataArray) => {
-            if (!dataArray || !Array.isArray(dataArray)) return [];
-            return dataArray.map(row => {
-                const normalizedRow = {};
-                Object.keys(row).forEach(key => {
-                    const normalizedKey = key.toLowerCase().trim();
-                    normalizedRow[normalizedKey] = row[key];
-                });
-                return normalizedRow;
-            });
-        };
-
-        const forest = normalizeData(forestData);
-        const otherDept = normalizeData(otherDeptData);
-        const agriculture = normalizeData(agricultureData);
-        const plantATree = normalizeData(plantATreeData);
-        const palmForest = normalizeData(palmForestData);
-        const palmOtherDept = normalizeData(palmOtherDeptData);
-
-        console.log('Data loaded:', {
-            forest: forest.length,
-            otherDept: otherDept.length,
-            agriculture: agriculture.length,
-            plantATree: plantATree.length
-        });
+        // Parse CSV
+        const data = parseCSV(csvText);
+        console.log('CSV parsed, total rows:', data.length);
 
         // Convert loaded data to the format expected by the dashboard
-        convertLoadedDataToDashboardFormat(forest, otherDept, agriculture, plantATree, palmForest, palmOtherDept);
-        
+        convertCSVDataToDashboardFormat(data);
+
         console.log('Data loaded successfully!');
     } catch (error) {
-        console.error('Error loading JSON data:', error);
-        alert('Error loading data: ' + error.message + '\n\nPlease make sure data_*.json files are in the same folder.');
+        console.error('Error loading CSV data:', error);
+        alert('Error loading data: ' + error.message + '\n\nPlease make sure merged.csv is in the same folder.');
     }
 }
 
-// Convert loaded JSON data to dashboard format
-function convertLoadedDataToDashboardFormat(forest, otherDept, agriculture, plantATree, palmForest, palmOtherDept) {
+// Parse CSV text to array of objects
+function parseCSV(csvText) {
+    const lines = csvText.split('\n').filter(line => line.trim());
+    if (lines.length < 2) return [];
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const data = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        if (values.length !== headers.length) continue;
+
+        const row = {};
+        headers.forEach((header, index) => {
+            row[header] = values[index] ? values[index].trim() : '';
+        });
+        data.push(row);
+    }
+
+    return data;
+}
+
+// Convert loaded CSV data to dashboard format
+function convertCSVDataToDashboardFormat(data) {
     // Process all data and build the district-wise structure
     const districtData = {};
-    
-    // Process forest data
-    forest.forEach(row => {
+    const deptPalmData = {};
+    const palmTreeData = {};
+    const agroforestData = {};
+
+    data.forEach(row => {
         const district = normalizeDistrictName(row.district);
         const year = row.year;
         const seedlings = parseInt(row.seedlings || row['number of seedlings'] || 0) || 0;
-        
+        const department = row.department || '';
+
+        if (!district) return;
+
+        // Overall geotag data (all departments combined)
         if (!districtData[district]) {
             districtData[district] = { total: 0, byYear: {} };
         }
@@ -113,52 +113,54 @@ function convertLoadedDataToDashboardFormat(forest, otherDept, agriculture, plan
         if (year) {
             districtData[district].byYear[year] = (districtData[district].byYear[year] || 0) + seedlings;
         }
+
+        // Department Palm data
+        if (department.toLowerCase().includes('palm') && department.toLowerCase().includes('department')) {
+            if (!deptPalmData[district]) {
+                deptPalmData[district] = { total: 0, byYear: {} };
+            }
+            deptPalmData[district].total += seedlings;
+            if (year) {
+                deptPalmData[district].byYear[year] = (deptPalmData[district].byYear[year] || 0) + seedlings;
+            }
+        }
+
+        // Palm Tree data
+        if (department.toLowerCase().includes('palm') && !department.toLowerCase().includes('department')) {
+            if (!palmTreeData[district]) {
+                palmTreeData[district] = { total: 0, byYear: {} };
+            }
+            palmTreeData[district].total += seedlings;
+            if (year) {
+                palmTreeData[district].byYear[year] = (palmTreeData[district].byYear[year] || 0) + seedlings;
+            }
+        }
+
+        // Agroforest data (forest department)
+        if (department.toLowerCase().includes('forest')) {
+            if (!agroforestData[district]) {
+                agroforestData[district] = { total: 0, byYear: {} };
+            }
+            agroforestData[district].total += seedlings;
+            if (year) {
+                agroforestData[district].byYear[year] = (agroforestData[district].byYear[year] || 0) + seedlings;
+            }
+        }
     });
-    
-    // Process other department data
-    otherDept.forEach(row => {
-        const district = normalizeDistrictName(row.district);
-        const year = row.year;
-        const seedlings = parseInt(row.seedlings || 0) || 0;
-        
-        if (!districtData[district]) {
-            districtData[district] = { total: 0, byYear: {} };
-        }
-        districtData[district].total += seedlings;
-        if (year) {
-            districtData[district].byYear[year] = (districtData[district].byYear[year] || 0) + seedlings;
-        }
-    });
-    
-    // Process agriculture data
-    agriculture.forEach(row => {
-        const district = normalizeDistrictName(row.district);
-        const year = row.year;
-        const seedlings = parseInt(row['number of seedlings'] || 0) || 0;
-        
-        if (!districtData[district]) {
-            districtData[district] = { total: 0, byYear: {} };
-        }
-        districtData[district].total += seedlings;
-        if (year) {
-            districtData[district].byYear[year] = (districtData[district].byYear[year] || 0) + seedlings;
-        }
-    });
-    
-    // Process plant a tree data
-    plantATree.forEach(row => {
-        const district = normalizeDistrictName(row.district);
-        const seedlings = parseInt(row['number of seedlings'] || 0) || 0;
-        
-        if (!districtData[district]) {
-            districtData[district] = { total: 0, byYear: {} };
-        }
-        districtData[district].total += seedlings;
-    });
-    
+
     // Replace realData with loaded data
     realData.overallGeotag = districtData;
-    
+    realData.departmentPalm = deptPalmData;
+    realData.palmTree = palmTreeData;
+    realData.agroforest = agroforestData;
+
+    console.log('Data converted:', {
+        overallGeotag: Object.keys(districtData).length,
+        departmentPalm: Object.keys(deptPalmData).length,
+        palmTree: Object.keys(palmTreeData).length,
+        agroforest: Object.keys(agroforestData).length
+    });
+
     // Refresh dashboard components
     loadRealData();
 }
