@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Division-wise Agroforestry | Planting Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .agroforestry-table-wrap {
+            overflow-x: auto;
+            background: #fff;
+            color: #111;
+        }
+
+        .agroforestry-table {
+            width: max-content;
+            min-width: 100%;
+            table-layout: fixed;
+            margin-bottom: 0;
+            border-collapse: collapse;
+            color: #111;
+            background: #fff;
+            white-space: nowrap;
+            font-size: 0.75rem;
+        }
+
+        .agroforestry-table th,
+        .agroforestry-table td {
+            border: 1px solid #111;
+            padding: 0.25rem 0.3rem;
+            vertical-align: middle;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .agroforestry-table thead th {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            text-align: center;
+            background: #fff;
+        }
+
+        .agroforestry-table .table-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .agroforestry-table .circle-cell {
+            min-width: 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .agroforestry-table .division-cell {
+            min-width: 0;
+        }
+
+        .agroforestry-table tfoot td {
+            font-weight: 700;
+            background: #f0f0f0;
+        }
+
+        .table-filter {
+            min-width: 220px;
+            max-width: 320px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-tree-fill me-2"></i>Division-wise Agroforestry
+            </span>
+            <div class="d-flex gap-2">
+                <a href="department-planting.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-buildings me-2"></i>Department planting
+                </a>
+                <a href="component-geotags.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-grid-3x3 me-2"></i>Component geotags
+                </a>
+                <a href="summary_table.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-table me-2"></i>Summary Table
+                </a>
+                <a href="index.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid mt-4">
+        <section class="filter-section d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4" aria-label="Filter agroforestry data">
+            <div class="table-filter">
+                <label class="form-label fw-bold" for="yearFilter">
+                    <i class="bi bi-calendar-check me-2"></i>Financial Year
+                </label>
+                <select class="form-select" id="yearFilter">
+                    <option value="all">All Years</option>
+                </select>
+            </div>
+            <div class="table-filter">
+                <label class="form-label fw-bold" for="circleFilter">
+                    <i class="bi bi-geo-alt me-2"></i>Circle
+                </label>
+                <select class="form-select" id="circleFilter">
+                    <option value="all">All Circles</option>
+                </select>
+            </div>
+            <p class="mb-1 text-light small">Farm land seedling counts for all recorded species. Other dept records with ambiguous district-to-division matches are grouped as Unassigned.</p>
+        </section>
+
+        <section class="table-container">
+            <p id="loadStatus" class="mb-3 text-dark" role="status" aria-live="polite">Loading agroforestry records…</p>
+            <div class="agroforestry-table-wrap">
+                <table class="agroforestry-table">
+                    <thead id="agroforestryTableHead"></thead>
+                    <tbody id="agroforestryTableBody"></tbody>
+                    <tfoot id="agroforestryTableFoot"></tfoot>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p class="mb-0">Planting Dashboard © 2025</p>
+    </footer>
+
+    <script src="r2_config.js"></script>
+    <script src="agroforestry.js"></script>
+</body>
+</html>

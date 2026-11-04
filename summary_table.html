@@ -19,14 +19,20 @@
         }
         
         .summary-table {
-            font-size: 0.85rem;
+            font-size: 0.72rem;
             border-collapse: collapse;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .summary-table th,
+        .summary-table td {
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
         }
         
         .summary-table thead th {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 8px;
+            padding: 7px 5px;
             font-weight: 600;
             border: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
@@ -34,12 +40,24 @@
         }
         
         .summary-table tbody td {
-            padding: 10px 8px;
+            padding: 6px 5px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #f8fafc;
             text-align: center;
             font-weight: 600;
             background: rgba(30, 27, 75, 0.3);
+        }
+
+        .summary-table .summary-circle-cell,
+        .summary-table .summary-district-cell {
+            min-width: 120px;
+            vertical-align: middle;
+            white-space: normal;
+        }
+
+        .summary-table tbody td:nth-child(4) {
+            min-width: 180px;
+            white-space: normal;
         }
         
         .summary-table tbody tr:hover {
@@ -113,9 +131,14 @@
             <span class="navbar-brand mb-0 h1">
                 <i class="bi bi-table me-2"></i>Comprehensive Summary Table
             </span>
-            <a href="index.html" class="btn btn-outline-light btn-sm">
-                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-            </a>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="department-planting.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-buildings me-2"></i>Department planting
+                </a>
+                <a href="index.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
         </div>
     </nav>
 
@@ -165,6 +188,20 @@
                 </div>
             </div>
             <div class="row mt-3">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold" for="circleFilter"><i class="bi bi-geo-alt me-2"></i>Circle:</label>
+                    <select class="form-select" id="circleFilter" onchange="applyFilters()">
+                        <option value="all">All Circles</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold" for="districtFilter"><i class="bi bi-map me-2"></i>District:</label>
+                    <select class="form-select" id="districtFilter" onchange="applyFilters()">
+                        <option value="all">All Districts</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-3">
                 <div class="col-12">
                     <button class="btn btn-info w-100" onclick="loadDataFromJSON()">
                         <i class="bi bi-cloud-download me-2"></i>Load Data from JSON
@@ -175,28 +212,38 @@
 
         <!-- Table Section -->
         <div class="table-container">
-            <h5 class="mb-3"><i class="bi bi-table me-2"></i>District-wise Summary</h5>
+            <h5 class="mb-3"><i class="bi bi-table me-2"></i>Circle, District and Division-wise Summary</h5>
             <table class="table table-striped summary-table" id="summaryTable">
                 <thead>
                     <tr>
                         <th rowspan="2">S.No</th>
+                        <th rowspan="2">Circle</th>
                         <th rowspan="2">District</th>
-                        <th colspan="4" class="category-header">Geotag</th>
-                        <th colspan="2" class="category-header">Silver Oak</th>
-                        <th colspan="2" class="category-header">Sandle Wood</th>
-                        <th colspan="2" class="category-header">Palm</th>
+                        <th rowspan="2">Division</th>
+                        <th colspan="6" class="category-header">Geotag</th>
+                        <th colspan="4" class="category-header">Silver Oak</th>
+                        <th colspan="4" class="category-header">Sandle Wood</th>
+                        <th colspan="4" class="category-header">Palm</th>
                     </tr>
                     <tr>
+                        <th>Target</th>
                         <th>Forest</th>
                         <th>Other Dept</th>
                         <th>Agriculture</th>
                         <th>Plant aTree</th>
+                        <th>Achievement</th>
+                        <th>Target</th>
                         <th>Forest</th>
                         <th>Other Dept</th>
+                        <th>Achievement</th>
+                        <th>Target</th>
                         <th>Forest</th>
                         <th>Other Dept</th>
+                        <th>Achievement</th>
+                        <th>Target</th>
                         <th>Forest</th>
                         <th>Other Dept</th>
+                        <th>Achievement</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -204,17 +251,25 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <td colspan="2">Total</td>
+                        <td colspan="4">Total</td>
+                        <td>0</td>
                         <td id="totalGeotagForest">0</td>
                         <td id="totalGeotagOtherDept">0</td>
                         <td id="totalGeotagAgriculture">0</td>
                         <td id="totalGeotagPlantATree">0</td>
+                        <td id="totalGeotagAchievement">0</td>
+                        <td>0</td>
                         <td id="totalSilverOakForest">0</td>
                         <td id="totalSilverOakOtherDept">0</td>
+                        <td id="totalSilverOakAchievement">0</td>
+                        <td>0</td>
                         <td id="totalSandleWoodForest">0</td>
                         <td id="totalSandleWoodOtherDept">0</td>
+                        <td id="totalSandleWoodAchievement">0</td>
+                        <td>0</td>
                         <td id="totalPalmForest">0</td>
                         <td id="totalPalmOtherDept">0</td>
+                        <td id="totalPalmAchievement">0</td>
                     </tr>
                 </tfoot>
             </table>
@@ -224,6 +279,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="r2_config.js"></script>
+    <script src="division-mappings.js"></script>
     <script src="summary_table_script.js"></script>
 </body>
 </html>

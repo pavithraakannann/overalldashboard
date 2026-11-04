@@ -12,6 +12,25 @@ function setDefaultDates() {
     document.getElementById('endDate').value = '';
 }
 
+function updateGroupAchievements() {
+    const groups = [
+        ['achievement-geotag', ['geotag-forest', 'geotag-other-dept', 'geotag-agriculture', 'geotag-plant-atree']],
+        ['achievement-silver-oak', ['silver-oak-forest', 'silver-oak-other-dept']],
+        ['achievement-sandle-wood', ['sandle-wood-forest', 'sandle-wood-other-dept']],
+        ['achievement-palm', ['palm-forest', 'palm-other-dept']]
+    ];
+
+    document.querySelectorAll('#tableBody tr').forEach(row => {
+        groups.forEach(([achievementClass, sourceClasses]) => {
+            const achievement = sourceClasses.reduce((total, className) => {
+                const text = row.querySelector(`.${className}`)?.textContent || '0';
+                return total + (parseInt(text.replace(/,/g, ''), 10) || 0);
+            }, 0);
+            row.querySelector(`.${achievementClass}`).textContent = achievement.toLocaleString();
+        });
+    });
+}
+
 // Initialize table with all districts
 function initializeTable() {
     const districts = [
@@ -26,26 +45,183 @@ function initializeTable() {
     ];
 
     const tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = '';
+    tableBody.replaceChildren();
+    summaryRows.length = 0;
+    summaryRowElements.clear();
+    summaryRowsByKey.clear();
 
-    districts.forEach((district, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${district}</td>
-            <td class="geotag-forest" data-district="${district}">0</td>
-            <td class="geotag-other-dept" data-district="${district}">0</td>
-            <td class="geotag-agriculture" data-district="${district}">0</td>
-            <td class="geotag-plant-atree" data-district="${district}">0</td>
-            <td class="silver-oak-forest" data-district="${district}">0</td>
-            <td class="silver-oak-other-dept" data-district="${district}">0</td>
-            <td class="sandle-wood-forest" data-district="${district}">0</td>
-            <td class="sandle-wood-other-dept" data-district="${district}">0</td>
-            <td class="palm-forest" data-district="${district}">0</td>
-            <td class="palm-other-dept" data-district="${district}">0</td>
-        `;
-        tableBody.appendChild(row);
+    (window.dashboardDivisionMappings || []).forEach(([division, circle, district]) => {
+        addSummaryRow({ division, circle, district, kind: 'division' });
     });
+
+    districts.forEach(district => {
+        const circles = new Set((window.dashboardDivisionMappings || [])
+            .filter(([, , mappedDistrict]) => normalizeDistrict(mappedDistrict) === district)
+            .map(([, circle]) => circle));
+        addSummaryRow({
+            division: 'District-level records (division unavailable)',
+            circle: circles.size === 1 ? [...circles][0] : 'Unassigned',
+            district,
+            kind: 'district'
+        });
+    });
+
+    renderSummaryRows();
+    populateLocationFilters();
+}
+
+const summaryRows = [];
+const summaryRowElements = new Map();
+const summaryRowsByKey = new Map();
+
+function createSummaryRowCell(text) {
+    const cell = document.createElement('td');
+    cell.textContent = text;
+    return cell;
+}
+
+function createSummaryRowKey(kind, division, district) {
+    return `${kind}\u0000${normalizeDistrict(division)}\u0000${normalizeDistrict(district)}`;
+}
+
+function addSummaryRow({ division, circle, district, kind }) {
+    const rowData = {
+        division,
+        circle,
+        district: normalizeDistrict(district),
+        kind,
+        key: createSummaryRowKey(kind, division, district)
+    };
+    if (summaryRowsByKey.has(rowData.key)) return;
+    summaryRows.push(rowData);
+    summaryRowsByKey.set(rowData.key, rowData);
+}
+
+function renderSummaryRows() {
+    const body = document.getElementById('tableBody');
+    const valueClasses = [
+        'target-geotag', 'geotag-forest', 'geotag-other-dept', 'geotag-agriculture', 'geotag-plant-atree', 'achievement-geotag',
+        'target-silver-oak', 'silver-oak-forest', 'silver-oak-other-dept', 'achievement-silver-oak',
+        'target-sandle-wood', 'sandle-wood-forest', 'sandle-wood-other-dept', 'achievement-sandle-wood',
+        'target-palm', 'palm-forest', 'palm-other-dept', 'achievement-palm'
+    ];
+
+    summaryRows.sort((a, b) =>
+        a.circle.localeCompare(b.circle) ||
+        a.district.localeCompare(b.district) ||
+        (a.kind === b.kind ? 0 : a.kind === 'division' ? -1 : 1) ||
+        a.division.localeCompare(b.division)
+    );
+
+    summaryRows.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.dataset.rowKey = item.key;
+        row.dataset.circle = item.circle;
+        row.dataset.district = item.district;
+        row.appendChild(createSummaryRowCell(String(index + 1)));
+
+        const circleCell = createSummaryRowCell(item.circle);
+        circleCell.className = 'summary-circle-cell';
+        row.appendChild(circleCell);
+
+        const districtCell = createSummaryRowCell(item.district);
+        districtCell.className = 'summary-district-cell';
+        row.appendChild(districtCell);
+
+        row.appendChild(createSummaryRowCell(item.division));
+        valueClasses.forEach(className => {
+            const cell = createSummaryRowCell('0');
+            cell.className = className;
+            cell.dataset.district = item.district;
+            row.appendChild(cell);
+        });
+        body.appendChild(row);
+        summaryRowElements.set(item.key, row);
+    });
+}
+
+function populateLocationFilters() {
+    const circleFilter = document.getElementById('circleFilter');
+    const districtFilter = document.getElementById('districtFilter');
+    [...new Set(summaryRows.map(row => row.circle))]
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(circle => circleFilter.add(new Option(circle, circle)));
+    updateDistrictFilterOptions();
+}
+
+function updateDistrictFilterOptions() {
+    const circleFilter = document.getElementById('circleFilter');
+    const districtFilter = document.getElementById('districtFilter');
+    const selectedDistrict = districtFilter.value;
+    const districts = [...new Set(summaryRows
+        .filter(row => circleFilter.value === 'all' || row.circle === circleFilter.value)
+        .map(row => row.district))]
+        .sort((a, b) => a.localeCompare(b));
+    districtFilter.replaceChildren(new Option('All Districts', 'all'));
+    districts.forEach(district => districtFilter.add(new Option(district, district)));
+    districtFilter.value = districts.includes(selectedDistrict) ? selectedDistrict : 'all';
+}
+
+function getSummaryDataCell(className, category, row) {
+    const district = normalizeDistrict(row.district);
+    let summaryRow;
+    if ((category === 'forest' || category === 'palmForest') && row.division) {
+        const mapping = (window.dashboardDivisionMappings || []).find(([division]) =>
+            normalizeLocation(division) === normalizeLocation(row.division)
+        );
+        if (mapping) {
+            summaryRow = summaryRowsByKey.get(createSummaryRowKey('division', mapping[0], mapping[2]));
+        }
+    }
+
+    if (!summaryRow) {
+        summaryRow = summaryRowsByKey.get(createSummaryRowKey(
+            'district',
+            'District-level records (division unavailable)',
+            district
+        ));
+    }
+    return summaryRowElements.get(summaryRow?.key)?.querySelector(`.${className}`) || null;
+}
+
+function applyLocationFilters() {
+    const selectedCircle = document.getElementById('circleFilter').value;
+    const selectedDistrict = document.getElementById('districtFilter').value;
+    const rows = [...document.querySelectorAll('#tableBody tr')];
+
+    rows.forEach(row => {
+        row.hidden = (selectedCircle !== 'all' && row.dataset.circle !== selectedCircle) ||
+            (selectedDistrict !== 'all' && row.dataset.district !== selectedDistrict);
+        const circleCell = row.querySelector('.summary-circle-cell');
+        const districtCell = row.querySelector('.summary-district-cell');
+        circleCell.rowSpan = 1;
+        districtCell.rowSpan = 1;
+        circleCell.hidden = row.hidden;
+        districtCell.hidden = row.hidden;
+    });
+
+    const visibleRows = rows.filter(row => !row.hidden);
+    const mergeCells = (className, keyForRow) => {
+        let start = 0;
+        while (start < visibleRows.length) {
+            const key = keyForRow(visibleRows[start]);
+            let end = start + 1;
+            while (end < visibleRows.length && keyForRow(visibleRows[end]) === key) end++;
+
+            const firstCell = visibleRows[start].querySelector(className);
+            firstCell.rowSpan = end - start;
+            for (let index = start + 1; index < end; index++) {
+                visibleRows[index].querySelector(className).hidden = true;
+            }
+            start = end;
+        }
+    };
+    mergeCells('.summary-circle-cell', row => row.dataset.circle);
+    mergeCells('.summary-district-cell', row => `${row.dataset.circle}\u0000${row.dataset.district}`);
+}
+
+function normalizeLocation(value) {
+    return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 // Store all uploaded data
@@ -112,6 +288,8 @@ function updateTable() {
     processCategory('palmForest', 'palm-forest');
     processCategory('palmOtherDept', 'palm-other-dept');
 
+    updateGroupAchievements();
+    applyLocationFilters();
     // Update totals
     console.log('Updating totals...');
     updateTotals();
@@ -166,7 +344,7 @@ function processCategory(category, cellClass) {
 
         if (selectedYear !== 'all' && year !== selectedYear) return;
 
-        const cell = document.querySelector(`.${cellClass}[data-district="${district}"]`);
+        const cell = getSummaryDataCell(cellClass, category, row);
         if (cell) {
             const currentValue = parseInt(cell.textContent.replace(/,/g, '')) || 0;
             cell.textContent = (currentValue + seedlings).toLocaleString();
@@ -223,7 +401,7 @@ function extractSpeciesFromCategory(category, cellClass, speciesList) {
         });
         
         if (isMatch) {
-            const cell = document.querySelector(`.${cellClass}[data-district="${district}"]`);
+            const cell = getSummaryDataCell(cellClass, category, row);
             if (cell) {
                 const currentValue = parseInt(cell.textContent.replace(/,/g, '')) || 0;
                 cell.textContent = (currentValue + seedlings).toLocaleString();
@@ -279,7 +457,11 @@ function updateTotals() {
         'totalSandleWoodForest': 'sandle-wood-forest',
         'totalSandleWoodOtherDept': 'sandle-wood-other-dept',
         'totalPalmForest': 'palm-forest',
-        'totalPalmOtherDept': 'palm-other-dept'
+        'totalPalmOtherDept': 'palm-other-dept',
+        'totalGeotagAchievement': 'achievement-geotag',
+        'totalSilverOakAchievement': 'achievement-silver-oak',
+        'totalSandleWoodAchievement': 'achievement-sandle-wood',
+        'totalPalmAchievement': 'achievement-palm'
     };
 
     Object.keys(totals).forEach(totalId => {
@@ -287,6 +469,7 @@ function updateTotals() {
         const cells = document.querySelectorAll(`.${cellClass}`);
         let total = 0;
         cells.forEach(cell => {
+            if (cell.closest('tr').hidden) return;
             const value = parseInt(cell.textContent.replace(/,/g, '')) || 0;
             total += value;
         });
@@ -296,6 +479,7 @@ function updateTotals() {
 
 // Apply year filter
 function applyFilters() {
+    updateDistrictFilterOptions();
     const selectedYear = document.getElementById('yearFilter').value;
     
     // Reset table first
@@ -321,6 +505,8 @@ function applyFilters() {
     processCategory('palmForest', 'palm-forest');
     processCategory('palmOtherDept', 'palm-other-dept');
 
+    updateGroupAchievements();
+    applyLocationFilters();
     updateTotals();
 }
 
@@ -368,6 +554,8 @@ function applyDateFilter() {
     processCategoryWithDateFilter('palmForest', 'palm-forest', yearsToInclude);
     processCategoryWithDateFilter('palmOtherDept', 'palm-other-dept', yearsToInclude);
 
+    updateGroupAchievements();
+    applyLocationFilters();
     updateTotals();
 }
 
@@ -406,7 +594,7 @@ function processCategoryWithDateFilter(category, cellClass, yearsToInclude) {
 
         if (!yearsToInclude.includes(year)) return;
 
-        const cell = document.querySelector(`.${cellClass}[data-district="${district}"]`);
+        const cell = getSummaryDataCell(cellClass, category, row);
         if (cell) {
             const currentValue = parseInt(cell.textContent.replace(/,/g, '')) || 0;
             cell.textContent = (currentValue + seedlings).toLocaleString();
@@ -450,7 +638,7 @@ function extractSpeciesFromCategoryWithDateFilter(category, cellClass, speciesLi
         });
         
         if (isMatch) {
-            const cell = document.querySelector(`.${cellClass}[data-district="${district}"]`);
+            const cell = getSummaryDataCell(cellClass, category, row);
             if (cell) {
                 const currentValue = parseInt(cell.textContent.replace(/,/g, '')) || 0;
                 cell.textContent = (currentValue + seedlings).toLocaleString();
@@ -492,9 +680,89 @@ function getFinancialYear(date) {
 
 // Export to Excel
 function exportToExcel() {
-    const table = document.getElementById('summaryTable');
-    const wb = XLSX.utils.table_to_book(table);
-    XLSX.writeFile(wb, 'comprehensive_summary.xlsx');
+    if (typeof XLSX === 'undefined') {
+        throw new Error('Excel export is unavailable because the spreadsheet library did not load.');
+    }
+
+    const columnDefinitions = [
+        { header: 'S.No', className: null },
+        { header: 'Circle', className: null },
+        { header: 'District', className: null },
+        { header: 'Division', className: null },
+        { header: 'Target', className: 'target-geotag' },
+        { header: 'Forest', className: 'geotag-forest' },
+        { header: 'Other Dept', className: 'geotag-other-dept' },
+        { header: 'Agriculture', className: 'geotag-agriculture' },
+        { header: 'Plant aTree', className: 'geotag-plant-atree' },
+        { header: 'Achievement', className: 'achievement-geotag' },
+        { header: 'Target', className: 'target-silver-oak' },
+        { header: 'Forest', className: 'silver-oak-forest' },
+        { header: 'Other Dept', className: 'silver-oak-other-dept' },
+        { header: 'Achievement', className: 'achievement-silver-oak' },
+        { header: 'Target', className: 'target-sandle-wood' },
+        { header: 'Forest', className: 'sandle-wood-forest' },
+        { header: 'Other Dept', className: 'sandle-wood-other-dept' },
+        { header: 'Achievement', className: 'achievement-sandle-wood' },
+        { header: 'Target', className: 'target-palm' },
+        { header: 'Forest', className: 'palm-forest' },
+        { header: 'Other Dept', className: 'palm-other-dept' },
+        { header: 'Achievement', className: 'achievement-palm' }
+    ];
+    const groupHeaders = [
+        'S.No', 'Circle', 'District', 'Division',
+        'Geotag', '', '', '', '', '',
+        'Silver Oak', '', '', '',
+        'Sandle Wood', '', '', '',
+        'Palm', '', '', ''
+    ];
+    const detailHeaders = [
+        '', '', '', '',
+        ...columnDefinitions.slice(4).map(column => column.header)
+    ];
+    const visibleRows = [...document.querySelectorAll('#tableBody tr')]
+        .filter(row => !row.hidden);
+    const totals = Array(columnDefinitions.length - 4).fill(0);
+    const dataRows = visibleRows.map((row, index) => columnDefinitions.map((column, columnIndex) => {
+        if (columnIndex === 0) return index + 1;
+        if (columnIndex === 1) return row.dataset.circle || '';
+        if (columnIndex === 2) return row.dataset.district || '';
+        if (columnIndex === 3) return row.cells[3]?.textContent.trim() || '';
+
+        const text = row.querySelector(`.${column.className}`)?.textContent.trim() || '0';
+        const value = Number(text.replace(/,/g, ''));
+        const numericValue = Number.isFinite(value) ? value : 0;
+        totals[columnIndex - 4] += numericValue;
+        return numericValue;
+    }));
+
+    const totalRow = ['Total', '', '', '', ...totals];
+    const worksheet = XLSX.utils.aoa_to_sheet([
+        ['Comprehensive Summary Table'],
+        groupHeaders,
+        detailHeaders,
+        ...dataRows,
+        totalRow
+    ]);
+
+    worksheet['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: columnDefinitions.length - 1 } },
+        ...[0, 1, 2, 3].map(column => ({ s: { r: 1, c: column }, e: { r: 2, c: column } })),
+        { s: { r: 1, c: 4 }, e: { r: 1, c: 9 } },
+        { s: { r: 1, c: 10 }, e: { r: 1, c: 13 } },
+        { s: { r: 1, c: 14 }, e: { r: 1, c: 17 } },
+        { s: { r: 1, c: 18 }, e: { r: 1, c: 21 } }
+    ];
+    worksheet['!autofilter'] = {
+        ref: `A3:V${2 + dataRows.length}`
+    };
+    worksheet['!cols'] = [
+        { wch: 7 }, { wch: 22 }, { wch: 20 }, { wch: 38 },
+        ...Array(18).fill({ wch: 15 })
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Summary');
+    XLSX.writeFile(workbook, 'comprehensive_summary.xlsx');
 }
 
 // Load data from JSON file

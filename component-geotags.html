@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component wise geotags | Planting Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .component-table-wrap {
+            overflow: auto;
+            background: #fff;
+        }
+
+        .component-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .component-filter label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+        }
+
+        .component-table {
+            width: 100%;
+            min-width: 1500px;
+            border-collapse: collapse;
+            table-layout: fixed;
+            color: #111;
+            background: #fff;
+            font-size: 0.8rem;
+        }
+
+        .component-table th,
+        .component-table td {
+            border: 1px solid #222;
+            padding: 0.32rem 0.4rem;
+            text-align: center;
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+        }
+
+        .component-table thead th {
+            background: #fff;
+            white-space: normal;
+        }
+
+        .component-table .report-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .component-table .circle-cell,
+        .component-table .district-cell {
+            font-weight: 600;
+        }
+
+        .component-table tfoot td {
+            font-weight: 700;
+            background: #f0f0f0;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                color: #111;
+            }
+
+            body::before,
+            nav,
+            footer {
+                display: none !important;
+            }
+
+            .container-fluid {
+                padding: 0;
+            }
+
+            .table-container {
+                padding: 0;
+                margin: 0;
+                border: 0;
+                box-shadow: none;
+                background: #fff;
+            }
+
+            .component-table {
+                min-width: 0;
+                font-size: 8pt;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-grid-3x3 me-2"></i>Component wise geotags
+            </span>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="department-planting.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-buildings me-2"></i>Department planting
+                </a>
+                <a href="agroforestry.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-tree me-2"></i>Agroforestry
+                </a>
+                <a href="summary_table.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-table me-2"></i>Summary Table
+                </a>
+                <a href="index.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid mt-4">
+        <section class="table-container">
+            <section class="component-filters mb-4" aria-label="Filter component geotags">
+                <div class="component-filter">
+                    <label for="yearFilter">Financial Year</label>
+                    <select class="form-select" id="yearFilter">
+                        <option value="all">All Years</option>
+                    </select>
+                </div>
+                <div class="component-filter">
+                    <label for="startDateFilter">From Date</label>
+                    <input class="form-control" type="date" id="startDateFilter">
+                </div>
+                <div class="component-filter">
+                    <label for="endDateFilter">To Date</label>
+                    <input class="form-control" type="date" id="endDateFilter">
+                </div>
+                <div class="component-filter">
+                    <label for="circleFilter">Circle</label>
+                    <select class="form-select" id="circleFilter">
+                        <option value="all">All Circles</option>
+                    </select>
+                </div>
+                <div class="component-filter">
+                    <label for="districtFilter">District</label>
+                    <select class="form-select" id="districtFilter">
+                        <option value="all">All Districts</option>
+                    </select>
+                </div>
+            </section>
+            <p id="componentLoadStatus" class="mb-3 text-dark" role="status" aria-live="polite">
+                Loading planting records…
+            </p>
+            <div class="component-table-wrap">
+                <table class="component-table">
+                    <colgroup>
+                        <col style="width: 70px">
+                        <col style="width: 155px">
+                        <col style="width: 155px">
+                        <col style="width: 155px">
+                        <col span="10" style="width: 110px">
+                        <col style="width: 90px">
+                    </colgroup>
+                    <thead id="componentTableHead"></thead>
+                    <tbody id="componentTableBody"></tbody>
+                    <tfoot id="componentTableFoot"></tfoot>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p class="mb-0">Planting Dashboard © 2025</p>
+    </footer>
+
+    <script src="r2_config.js"></script>
+    <script src="component-geotags.js"></script>
+</body>
+</html>

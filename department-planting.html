@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Department-wise planting record and seedling totals">
+    <title>Department-wise Planting | Planting Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .department-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .department-filter label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+        }
+
+        .department-filter-section,
+        .table-container {
+            background: rgba(30, 27, 75, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .department-filter-section {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-container {
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        .department-table-wrap {
+            overflow: auto;
+        }
+
+        .department-table {
+            min-width: 760px;
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.72rem;
+        }
+
+        .department-table th,
+        .department-table td {
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            padding: 6px 5px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .department-table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 7px 5px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .department-table td.department-name {
+            text-align: left;
+            min-width: 180px;
+            white-space: normal;
+        }
+
+        .department-table tbody td {
+            color: #f8fafc;
+            font-weight: 600;
+            background: rgba(30, 27, 75, 0.3);
+        }
+
+        .department-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .department-table tfoot td {
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(17, 153, 142, 0.3) 0%, rgba(56, 239, 125, 0.3) 100%);
+            color: #11998e;
+        }
+
+        #departmentLoadStatus {
+            color: #f8fafc !important;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                color: #111;
+            }
+
+            body::before,
+            nav,
+            footer,
+            .department-filters,
+            #departmentLoadStatus {
+                display: none !important;
+            }
+
+            .container-fluid,
+            .department-filter-section,
+            .table-container {
+                padding: 0;
+                margin: 0;
+                border: 0;
+                box-shadow: none;
+                background: #fff;
+            }
+
+            .department-table {
+                min-width: 0;
+                font-size: 8pt;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-buildings me-2"></i>Department-wise Planting
+            </span>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="summary_table.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-table me-2"></i>Summary Table
+                </a>
+                <a href="agroforestry.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-tree me-2"></i>Agroforestry
+                </a>
+                <a href="component-geotags.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-grid-3x3 me-2"></i>Component geotags
+                </a>
+                <a href="index.html" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid mt-4">
+        <section class="department-filter-section">
+            <section class="department-filters" aria-label="Filter department planting data">
+                <div class="department-filter">
+                    <label for="departmentYearFilter">Financial Year</label>
+                    <select class="form-select" id="departmentYearFilter">
+                        <option value="all">All Years</option>
+                    </select>
+                </div>
+                <div class="department-filter">
+                    <label for="departmentStartDate">From Date</label>
+                    <input class="form-control" type="date" id="departmentStartDate">
+                </div>
+                <div class="department-filter">
+                    <label for="departmentEndDate">To Date</label>
+                    <input class="form-control" type="date" id="departmentEndDate">
+                </div>
+                <div class="department-filter">
+                    <label for="departmentTypeFilter">Department Type</label>
+                    <select class="form-select" id="departmentTypeFilter">
+                        <option value="all">All Types</option>
+                    </select>
+                </div>
+                <div class="department-filter">
+                    <label for="departmentCircleFilter">Circle</label>
+                    <select class="form-select" id="departmentCircleFilter">
+                        <option value="all">All Circles</option>
+                    </select>
+                </div>
+                <div class="department-filter">
+                    <label for="departmentDistrictFilter">District</label>
+                    <select class="form-select" id="departmentDistrictFilter">
+                        <option value="all">All Districts</option>
+                    </select>
+                </div>
+            </section>
+        </section>
+
+            <section class="table-container">
+                <h5 class="mb-3"><i class="bi bi-table me-2"></i>Department-wise Planting Summary</h5>
+                <p id="departmentLoadStatus" class="mb-3" role="status" aria-live="polite">
+                    Loading department planting records…
+                </p>
+                <div class="department-table-wrap">
+                    <table class="department-table">
+                        <thead>
+                            <tr>
+                                <th>Sl. No</th>
+                                <th>Department Type</th>
+                                <th>Department</th>
+                                <th>Planting Records</th>
+                                <th>Seedlings Planted</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentTableBody"></tbody>
+                        <tfoot id="departmentTableFoot"></tfoot>
+                    </table>
+                </div>
+            </section>
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p class="mb-0">Planting Dashboard © 2025</p>
+    </footer>
+
+    <script src="r2_config.js"></script>
+    <script src="division-mappings.js"></script>
+    <script src="department-planting.js"></script>
+</body>
+</html>
